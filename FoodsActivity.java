@@ -2,14 +2,17 @@ package com.example.jonsmauricio.eyesfood.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,18 +38,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
     Clase controladora de la actividad de alimentos
 */
 
-//TODO: Hacer con expandible view
-//TODO: Hacer que las listas no sean scrollable y muestren todos los datos 
 // TODO: 19-10-2017 Hacer la vista de info nutricional 
 // TODO: 19-10-2017 Ver si hay que hacerlo con fragments
 
 public class FoodsActivity extends AppCompatActivity {
 
-    TextView infoGeneral, infoNutricional, tvIngredientes, tvAditivos;
-    String CodigoBarras, NombreMarca, PeligroAlimento, Producto, Nombre, Porcion, OfficialPhoto, eCode;
+    TextView infoGeneralNombre, infoGeneralProducto, infoGeneralCodigo, infoGeneralMarca, infoGeneralFecha, tvIngredientes,
+            infoNutricional, tvAditivos;
+    String CodigoBarras, NombreMarca, PeligroAlimento, Producto, Nombre, Fecha, Porcion, OfficialPhoto, eCode;
     int ContenidoNeto;
     float Energia, Proteinas, GrasaTotal, GrasaSaturada, GrasaTrans, GrasaMono, GrasaPoli, HidratosCarbono,
-            AzucaresTotales, Fibra, Sodio, PorcionGramos, IndiceGlicemico;
+            AzucaresTotales, Fibra, Sodio, PorcionGramos, IndiceGlicemico, Peligro;
+    RatingBar infoGeneralRating;
 
     private List<Ingredient> listaIngredientes;
     private List<Ingredient> listaAditivos;
@@ -69,17 +72,48 @@ public class FoodsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foods);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarFoods);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //Para la info general
+        infoGeneralNombre = (TextView) findViewById(R.id.tvFoodsInfoGeneralNombre);
+        infoGeneralProducto = (TextView) findViewById(R.id.tvFoodsInfoGeneralProducto);
+        infoGeneralCodigo = (TextView) findViewById(R.id.tvFoodsInfoGeneralCodigo);
+        infoGeneralMarca = (TextView) findViewById(R.id.tvFoodsInfoGeneralMarca);
+        infoGeneralFecha = (TextView) findViewById(R.id.tvFoodsInfoGeneralFecha);
+        infoGeneralRating = (RatingBar) findViewById(R.id.rbFoodsRating);
+
+        //Para los ingredientes
+        tvIngredientes = (TextView) findViewById(R.id.tvFoodsIngredients);
+
         infoNutricional = (TextView) findViewById(R.id.tvInfoNutricional);
-        infoGeneral = (TextView) findViewById(R.id.tvInfoGeneral);
-        tvIngredientes = (TextView) findViewById(R.id.tvIngredientes);
         tvAditivos = (TextView) findViewById(R.id.tvAditivos);
         lvAditivos = (ListView) findViewById(R.id.lvAditivos);
-        ivFoodPhoto = (ImageView) findViewById(R.id.ivPrueba);
+        ivFoodPhoto = (ImageView) findViewById(R.id.image_paralax);
+        final CollapsingToolbarLayout collapser = (CollapsingToolbarLayout) findViewById(R.id.collapser);
+
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.foods_app_bar);
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean isShow = false;
+            int scrollRange = -1;
+
+            //TODO: Revisar si esto se ve bien
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (scrollRange == -1) {
+                    scrollRange = appBarLayout.getTotalScrollRange();
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    collapser.setTitle("Title");
+                    isShow = true;
+                } else if(isShow) {
+                    collapser.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
+                    isShow = false;
+                }
+            }
+        });
 
         // Crear conexión al servicio REST
         mRestAdapter = new Retrofit.Builder()
@@ -98,7 +132,8 @@ public class FoodsActivity extends AppCompatActivity {
         if(b!=null)
         {
             Nombre = (String) b.get("Nombre");
-            setTitle(Nombre);
+            collapser.setTitle(Nombre); // Cambiar título
+            //setTitle(Nombre);
             CodigoBarras = (String) b.get("CodigoBarras");
             loadFoods(tokenFinal, CodigoBarras);
             loadIngredients(tokenFinal, CodigoBarras);
@@ -169,25 +204,23 @@ public class FoodsActivity extends AppCompatActivity {
     public void showFood(Food alimento){
 
         Nombre = alimento.getName();
+        Producto = alimento.getProductId();
+        Peligro = alimento.getFoodHazard();
+        Fecha = alimento.getDate();
         NombreMarca = alimento.getBrandCode();
-        PeligroAlimento = alimento.getFoodHazardId();
-        Energia = alimento.getEnergy();
-        Proteinas = alimento.getProtein();
-        GrasaTotal = alimento.getTotalFat();
-        HidratosCarbono = alimento.getCarbo();
-        AzucaresTotales = alimento.getTotalFat();
-        Sodio = alimento.getSodium();
+
         OfficialPhoto = alimento.getOfficialPhoto();
 
         Picasso.with(this)
                 .load(baseFotoAlimento + OfficialPhoto)
                 .into(ivFoodPhoto);
 
-        infoGeneral.setText("La marca del producto " + Nombre + " es " + NombreMarca + " y su calificación es de " +
-                PeligroAlimento);
-        infoNutricional.setText("El producto tiene "+Energia+" calorías, "+Proteinas+"g de proteínas, "+GrasaTotal+
-                "g de grasa total, " + HidratosCarbono+"g de hidratos de carbono, "+AzucaresTotales+"g de azúcares " +
-                "totales, "+Sodio+"g de sodio cada 100 ml o g.");
+        infoGeneralNombre.setText(Nombre);
+        infoGeneralProducto.setText(Producto);
+        infoGeneralRating.setRating(Peligro);
+        infoGeneralCodigo.append(" "+CodigoBarras);
+        infoGeneralMarca.append(" "+NombreMarca);
+        infoGeneralFecha.append(" "+Fecha);
     }
 
     //Carga los ingredientes del alimento
@@ -243,7 +276,7 @@ public class FoodsActivity extends AppCompatActivity {
     public void mostrarIngredientes(List <Ingredient> lista){
         int tamano = lista.size();
         int i = 0;
-        String ingredientes = "Ingredientes: ";
+        String ingredientes = "";
         while(i < tamano){
             if(i==tamano-1) {
                 ingredientes = ingredientes + lista.get(i).getIngredient() + ".";
@@ -344,6 +377,13 @@ public class FoodsActivity extends AppCompatActivity {
         i.putExtra("Nombre",Nombre);
 
         startActivity(i);
+    }
+
+    //Carga el menú a la toolbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_with_settings, menu);
+        return true;
     }
 
     //TODO: Método de prueba

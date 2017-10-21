@@ -1,10 +1,12 @@
 package com.example.jonsmauricio.eyesfood.ui;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.jonsmauricio.eyesfood.R;
@@ -36,12 +38,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
         public ImageView imagen;
         public TextView nombre;
         public TextView fecha;
+        public RatingBar ratingBar;
 
         public HistoryViewHolder(View v) {
             super(v);
             imagen = v.findViewById(R.id.iv_history_image);
             nombre = v.findViewById(R.id.tv_history_name);
             fecha = v.findViewById(R.id.tv_history_date);
+            ratingBar = v.findViewById(R.id.rbHistoryRating);
             itemView.setOnClickListener(this);
         }
 
@@ -74,6 +78,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.HistoryV
                 .load(baseFotoAlimento + items.get(i).getOfficialPhoto())
                 .into(viewHolder.imagen);
         viewHolder.nombre.setText(items.get(i).getName());
-        viewHolder.fecha.setText("Escaneado el "+ items.get(i).getDate() + " - " + items.get(i).getFoodHazardId());
+        viewHolder.fecha.setText("Escaneado el "+ items.get(i).getDate());
+        viewHolder.ratingBar.setRating(items.get(i).getFoodHazard());
     }
 }
