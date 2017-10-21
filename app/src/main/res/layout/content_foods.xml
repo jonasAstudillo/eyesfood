@@ -7,13 +7,140 @@ android:layout_height="match_parent"
 app:layout_behavior="@string/appbar_scrolling_view_behavior"
 tools:context="com.example.jonsmauricio.eyesfood.ui.FoodsActivity"
 android:orientation="vertical"
-tools:showIn="@layout/activity_foods">
+tools:showIn="@layout/activity_foods"
+android:paddingTop="24dp">
 
-<ImageView
-    android:id="@+id/ivPrueba"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@android:color/white"/>
+    <!-- Card Perfil -->
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/card_margin">
+
+        <RelativeLayout
+            style="@style/Widget.CardContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!--Etiqueta Info general -->
+            <TextView
+                android:id="@+id/tvFoodsInfoGeneralTitulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/foods_title_info_general"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:paddingBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvFoodsInfoGeneralNombre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvFoodsInfoGeneralTitulo"/>
+
+            <RatingBar
+                android:id="@+id/rbFoodsRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/ratingBarStyleSmall"
+                android:numStars="5"
+                android:stepSize="0.1"
+                android:isIndicator="true"
+                android:layout_below="@id/tvFoodsInfoGeneralNombre"/>
+
+            <TextView
+                android:id="@+id/tvFoodsInfoGeneralProducto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/rbFoodsRating"/>
+
+            <TextView
+                android:id="@+id/tvFoodsInfoGeneralCodigo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/foods_info_general_codigo"
+                android:layout_below="@id/tvFoodsInfoGeneralProducto"/>
+
+            <TextView
+                android:id="@+id/tvFoodsInfoGeneralMarca"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/foods_info_general_marca"
+                android:layout_below="@id/tvFoodsInfoGeneralCodigo"/>
+
+            <TextView
+                android:id="@+id/tvFoodsInfoGeneralFecha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/foods_info_general_fecha"
+                android:layout_below="@id/tvFoodsInfoGeneralMarca"/>
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/card_margin">
+
+        <LinearLayout
+            style="@style/Widget.CardContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <!--Etiqueta Perfil -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Información nutricional"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            <!--Texto de ejemplo-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hola ke ase nkjsanf
+}asnjfa asjnfas kas jfasnf knfjsa kasfnjkasnfk sakfsajkfnaka kasjfkas aonjas fasknfaksj asknfasj asnjfa sfsjnfsd fdsknfsd fsdnkjsnf" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/card_margin">
+
+        <LinearLayout
+            style="@style/Widget.CardContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <!--Etiqueta Perfil -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ingredientes"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:paddingBottom="16dp"/>
+            <!--Texto de ejemplo-->
+            <TextView
+                android:id="@+id/tvFoodsIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aditivos"
+        style="@style/RaisedButton"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Recomendaciones"
+        style="@style/RaisedButton"/>
+
 
 <TextView
     android:id="@+id/tvInfoGeneral"

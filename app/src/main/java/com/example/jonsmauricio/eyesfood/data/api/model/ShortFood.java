@@ -12,17 +12,17 @@ public class ShortFood {
     private String barCode;
     @SerializedName("nombre")
     private String name;
-    @SerializedName("idPeligroAlimento")
-    private String foodHazardId;
+    @SerializedName("peligroAlimento")
+    private float foodHazard;
     @SerializedName("fechaEscaneo")
     private String date;
     @SerializedName("fotoOficial")
     private String officialPhoto;
 
-    public ShortFood(String barCode, String name, String foodHazardId, String date, String officialPhoto) {
+    public ShortFood(String barCode, String name, float foodHazard, String date, String officialPhoto) {
         this.barCode = barCode;
         this.name = name;
-        this.foodHazardId = foodHazardId;
+        this.foodHazard = foodHazard;
         this.date = date;
         this.officialPhoto = officialPhoto;
     }
@@ -40,8 +40,8 @@ public class ShortFood {
         this.name = name;
     }
 
-    public String getFoodHazardId() {
-        return foodHazardId;
+    public float getFoodHazard() {
+        return foodHazard;
     }
 
     public String getDate() {
@@ -54,6 +54,6 @@ public class ShortFood {
 
     @Override
     public String toString(){
-        return name + " - " + foodHazardId + " - " + date;
+        return name + " - " + foodHazard + " - " + date;
     }
 }

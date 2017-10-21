@@ -4,12 +4,12 @@
         verde claro = #c5e1a5; #94af76
 
     -->
-    <color name="colorPrimary">#009688</color>
-    <color name="colorPrimaryDark">#00675b</color>
+    <color name="colorPrimary">#8BC34A</color>
+    <color name="colorPrimaryDark">#689F38</color>
     <color name="colorAccent">#3D5AFE</color>
 
     <color name="colorBackground">#FAFAFA</color>
-    <color name="TealBackground">#E0F2F1</color>
+    <color name="LightGreenBackground">#F1F8E9</color>
 
     <color name="black_overlay">#66000000</color>
 </resources>

@@ -144,4 +144,11 @@
 
     <string name="tv_login_progress_text">Iniciando sesión...</string>
 
+    <string name="action_search">Buscar</string>
+
+    <string name="foods_title_info_general">Información general</string>
+    <string name="foods_info_general_codigo">Código de barras: </string>
+    <string name="foods_info_general_marca">Marca: </string>
+    <string name="foods_info_general_fecha">Última actualización: </string>
+
 </resources>

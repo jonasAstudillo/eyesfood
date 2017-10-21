@@ -16,6 +16,8 @@ public class Food {
     private String userId;
     @SerializedName("idPeligroAlimento")
     private String foodHazardId;
+    @SerializedName("peligroAlimento")
+    private float foodHazard;
     @SerializedName("producto")
     private String productId;
     @SerializedName("nombre")
@@ -55,14 +57,15 @@ public class Food {
     @SerializedName("fotoOficial")
     private String officialPhoto;
 
-    public Food(String barCode, String brandCode, String userId, String foodHazardId, String productId, String name,
-                int content, float energy, float protein, float totalFat, float saturatedFat, float transFat, float monoFat,
-                float poliFat, float carbo, float totalSugar, float fiber, float sodium, String portion, float portionGr,
-                String date, float glycemicIndex, String officialPhoto) {
+    public Food(String barCode, String brandCode, String userId, String foodHazardId, float foodHazard, String productId,
+                String name, int content, float energy, float protein, float totalFat, float saturatedFat, float transFat,
+                float monoFat, float poliFat, float carbo, float totalSugar, float fiber, float sodium, String portion,
+                float portionGr, String date, float glycemicIndex, String officialPhoto) {
         this.barCode = barCode;
         this.brandCode = brandCode;
         this.userId = userId;
         this.foodHazardId = foodHazardId;
+        this.foodHazard = foodHazard;
         this.productId = productId;
         this.name = name;
         this.content = content;
@@ -98,6 +101,10 @@ public class Food {
 
     public String getFoodHazardId() {
         return foodHazardId;
+    }
+
+    public float getFoodHazard() {
+        return foodHazard;
     }
 
     public String getProductId() {
