@@ -34,7 +34,8 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginEnd="48dp"
-            app:expandedTitleMarginStart="48dp"
+            app:expandedTitleMarginStart="16dp"
+            app:expandedTitleTextAppearance="@style/AppBarTitleBlack"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <!-- Imagen del detalle -->

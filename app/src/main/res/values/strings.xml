@@ -151,4 +151,25 @@
     <string name="foods_info_general_marca">Marca: </string>
     <string name="foods_info_general_fecha">Última actualización: </string>
 
+    <string name="foods_title_info_nutricional">Información nutricional</string>
+    <string name="foods_info_nutricional_porcion">Porción: </string>
+    <string name="foods_info_nutricional_porcion_envase">Porciones por envase: </string>
+    <string name="foods_info_nutricional_por_100">100g</string>
+    <string name="foods_info_nutricional_por_porcion">1 porción</string>
+    <string name="foods_info_nutricional_energia">Energía (kcal)</string>
+    <string name="foods_info_nutricional_proteinas">Proteínas (g)</string>
+    <string name="foods_info_nutricional_grasa_total">Grasa total (g)</string>
+    <string name="foods_info_nutricional_grasa_sat">- Grasa saturada (g)</string>
+    <string name="foods_info_nutricional_grasa_mono">- Grasa monoinsat (g)</string>
+    <string name="foods_info_nutricional_grasa_poli">- Grasa poliinsat (g)</string>
+    <string name="foods_info_nutricional_grasa_trans">- Grasa trans (g)</string>
+    <string name="foods_info_nutricional_colesterol">- Colesterol (mg)</string>
+    <string name="foods_info_nutricional_hidratos">Hidratos de carbono \ndisponibles (g)</string>
+    <string name="foods_info_nutricional_azucares">- Azúcares totales (g)</string>
+    <string name="foods_info_nutricional_fibra">Fibra (g)</string>
+    <string name="foods_info_nutricional_sodio">Sodio (mg)</string>
+    <string name="foods_info_nutricional_nota">* Contenido no informado</string>
+
+    <string name="search_hint">Buscar alimento o aditivo</string>
+
 </resources>
