@@ -1,10 +1,13 @@
 package com.example.jonsmauricio.eyesfood.ui;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
@@ -99,20 +102,20 @@ public class FoodsActivity extends AppCompatActivity {
             boolean isShow = false;
             int scrollRange = -1;
 
-            //TODO: Revisar si esto se ve bien
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (scrollRange == -1) {
-                    scrollRange = appBarLayout.getTotalScrollRange();
-                }
-                if (scrollRange + verticalOffset == 0) {
-                    collapser.setTitle("Title");
-                    isShow = true;
-                } else if(isShow) {
-                    collapser.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
-                    isShow = false;
-                }
+        //TODO: Revisar si esto se ve bien
+        @Override
+        public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+            if (scrollRange == -1) {
+                scrollRange = appBarLayout.getTotalScrollRange();
             }
+            if (scrollRange + verticalOffset == 0) {
+                //collapser.setTitle("Title");
+                isShow = true;
+            } else if(isShow) {
+                //collapser.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
+                isShow = false;
+            }
+        }
         });
 
         // Crear conexión al servicio REST
