@@ -201,6 +201,7 @@ public class HistoryActivity extends AppCompatActivity
     public void onClick(View view, int position) {
         ShortFood food = historial.get(position);
         loadFoodsFromHistory(tokenFinal, food.getBarCode());
+
     }
 
     //Retorna un alimento al pinchar en el historial

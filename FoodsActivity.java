@@ -1,18 +1,24 @@
 package com.example.jonsmauricio.eyesfood.ui;
 
+import android.Manifest;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RatingBar;
@@ -26,6 +32,7 @@ import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.Ingredient;
 import com.example.jonsmauricio.eyesfood.data.api.model.Recommendation;
 import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
+import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -44,20 +51,29 @@ import retrofit2.converter.gson.GsonConverterFactory;
 // TODO: 19-10-2017 Hacer la vista de info nutricional 
 // TODO: 19-10-2017 Ver si hay que hacerlo con fragments
 
-public class FoodsActivity extends AppCompatActivity {
+public class FoodsActivity extends AppCompatActivity implements View.OnClickListener {
 
+    //Para la info general
     TextView infoGeneralNombre, infoGeneralProducto, infoGeneralCodigo, infoGeneralMarca, infoGeneralFecha, tvIngredientes,
             infoNutricional, tvAditivos;
-    String CodigoBarras, NombreMarca, PeligroAlimento, Producto, Nombre, Fecha, Porcion, OfficialPhoto, eCode;
-    int ContenidoNeto;
-    float Energia, Proteinas, GrasaTotal, GrasaSaturada, GrasaTrans, GrasaMono, GrasaPoli, HidratosCarbono,
-            AzucaresTotales, Fibra, Sodio, PorcionGramos, IndiceGlicemico, Peligro;
+
+    //Para la info nutricional
+    TextView porcion, porcionEnvase, energia100, energiaPorcion, proteinas100, proteinasPorcion, grasaTotal100,
+    grasaTotalPorcion, grasaSaturada100, grasaSaturadaPorcion, grasaMono100, grasaMonoPorcion, grasaPoli100, grasaPoliPorcion,
+    grasaTrans100, grasaTransPorcion, colesterol100, colesterolPorcion, hidratos100, hidratosPorcion, azucares100,
+    azucaresPorcion, fibra100, fibraPorcion, sodio100, sodioPorcion;
+
+    String CodigoBarras, NombreMarca, Producto, Nombre, Fecha, OfficialPhoto, eCode;
+
+    float Peligro;
     RatingBar infoGeneralRating;
+
+    //Para los botonos
+    Button additives, recommendations;
 
     private List<Ingredient> listaIngredientes;
     private List<Ingredient> listaAditivos;
-    private ArrayAdapter<Ingredient> adaptador;
-    private ListView lvAditivos;
+    private List<Recommendation> listaRecomendaciones;
     ImageView ivFoodPhoto;
 
     Retrofit mRestAdapter;
@@ -88,12 +104,44 @@ public class FoodsActivity extends AppCompatActivity {
         infoGeneralFecha = (TextView) findViewById(R.id.tvFoodsInfoGeneralFecha);
         infoGeneralRating = (RatingBar) findViewById(R.id.rbFoodsRating);
 
+        //Para la info nutricional
+        porcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalPorcion);
+        porcionEnvase = (TextView) findViewById(R.id.tvFoodsInfoNutricionalPorcionEnvase);
+        energia100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalEnergia100);
+        energiaPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalEnergiaPorcion);
+        proteinas100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalProteinas100);
+        proteinasPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalProteinasPorcion);
+        grasaTotal100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaTotal100);
+        grasaTotalPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaTotalPorcion);
+        grasaSaturada100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaSaturada100);
+        grasaSaturadaPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaSaturadaPorcion);
+        grasaMono100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaMono100);
+        grasaMonoPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaMonoPorcion);
+        grasaPoli100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaPoli100);
+        grasaPoliPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaPoliPorcion);
+        grasaTrans100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaTrans100);
+        grasaTransPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalGrasaTransPorcion);
+        colesterol100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalColesterol100);
+        colesterolPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalColesterolPorcion);
+        hidratos100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalHidratos100);
+        hidratosPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalHidratosPorcion);
+        azucares100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalAzucares100);
+        azucaresPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalAzucaresPorcion);
+        fibra100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalFibra100);
+        fibraPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalFibraPorcion);
+        sodio100 = (TextView) findViewById(R.id.tvFoodsInfoNutricionalSodio100);
+        sodioPorcion = (TextView) findViewById(R.id.tvFoodsInfoNutricionalSodioPorcion);
+
         //Para los ingredientes
         tvIngredientes = (TextView) findViewById(R.id.tvFoodsIngredients);
 
-        infoNutricional = (TextView) findViewById(R.id.tvInfoNutricional);
-        tvAditivos = (TextView) findViewById(R.id.tvAditivos);
-        lvAditivos = (ListView) findViewById(R.id.lvAditivos);
+        //Para los botones
+        additives = (Button) findViewById(R.id.btFoodsAdditives);
+        recommendations = (Button) findViewById(R.id.btFoodsRecommendations);
+
+        additives.setOnClickListener(this);
+        recommendations.setOnClickListener(this);
+
         ivFoodPhoto = (ImageView) findViewById(R.id.image_paralax);
         final CollapsingToolbarLayout collapser = (CollapsingToolbarLayout) findViewById(R.id.collapser);
 
@@ -142,39 +190,6 @@ public class FoodsActivity extends AppCompatActivity {
             loadIngredients(tokenFinal, CodigoBarras);
             loadRecommendations(tokenFinal, CodigoBarras);
         }
-
-        //On click para la lista de aditivos
-        lvAditivos.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Ingredient currentIngredient = adaptador.getItem(position);
-                eCode = currentIngredient.getIdIngredient();
-                loadAdditive(tokenFinal, eCode);
-            }
-        });
-    }
-
-    //Envía a la página de aditivos al pinchar en la lista
-    //Token: Token de autorización
-    //eCode: Código del aditivo
-    public void loadAdditive(String token, String eCode) {
-        Call<Additive> call = mEyesFoodApi.getAdditive(token, eCode);
-        call.enqueue(new Callback<Additive>() {
-            @Override
-            public void onResponse(Call<Additive> call,
-                                   Response<Additive> response) {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                Additive aditivo = response.body();
-                showAdditive(aditivo);
-            }
-
-            @Override
-            //Si no existe la URL
-            public void onFailure(Call<Additive> call, Throwable t) {
-            }
-        });
     }
 
     //Retorna un alimento
@@ -193,6 +208,7 @@ public class FoodsActivity extends AppCompatActivity {
                 //Si entro acá el alimento existe en la BD y lo obtengo
                 Food resultado = response.body();
                 showFood(resultado);
+                showNutritionFacts(resultado);
             }
 
             @Override
@@ -224,6 +240,50 @@ public class FoodsActivity extends AppCompatActivity {
         infoGeneralCodigo.append(" "+CodigoBarras);
         infoGeneralMarca.append(" "+NombreMarca);
         infoGeneralFecha.append(" "+Fecha);
+    }
+
+    //Muestra la información nutricional del alimento
+    public void showNutritionFacts(Food alimento){
+        float portion = alimento.getPortionGr();
+        porcion.append(" "+alimento.getPortion());
+        porcion.append(" ("+portion+" "+alimento.getUnit()+")");
+        porcionEnvase.append(" " + Float.toString(calculatePortions(alimento.getContent(), portion)));
+
+        setTextNutrition(alimento.getEnergy(), portion, energia100, energiaPorcion);
+        setTextNutrition(alimento.getProtein(), portion, proteinas100, proteinasPorcion);
+        setTextNutrition(alimento.getTotalFat(), portion, grasaTotal100, grasaTotalPorcion);
+        setTextNutrition(alimento.getSaturatedFat(), portion, grasaSaturada100, grasaSaturadaPorcion);
+        setTextNutrition(alimento.getMonoFat(), portion, grasaMono100, grasaMonoPorcion);
+        setTextNutrition(alimento.getPoliFat(), portion, grasaPoli100, grasaPoliPorcion);
+        setTextNutrition(alimento.getTransFat(), portion, grasaTrans100, grasaTransPorcion);
+        setTextNutrition(alimento.getCholesterol(), portion, colesterol100, colesterolPorcion);
+        setTextNutrition(alimento.getCarbo(), portion, hidratos100, hidratosPorcion);
+        setTextNutrition(alimento.getTotalSugar(), portion, azucares100, azucaresPorcion);
+        setTextNutrition(alimento.getFiber(), portion, fibra100, fibraPorcion);
+        setTextNutrition(alimento.getSodium(), portion, sodio100, sodioPorcion);
+    }
+
+    public void setTextNutrition(float content, float portion, TextView tv100, TextView tvPortion){
+        if(content < 0){
+            tv100.setText("*");
+            tvPortion.setText("*");
+        }
+        else{
+            tv100.setText(Float.toString(content));
+            tvPortion.setText(Float.toString(calculatePortion(portion, content)));
+        }
+    }
+
+    //Calcula la cantidad de porciones por envase
+    public float calculatePortions(float neto, float portion){
+        float porcionesEnvase = neto/portion;
+        return porcionesEnvase;
+    }
+
+    //Calcula los datos por porción
+    public float calculatePortion(float portion, float data100){
+        float resultado = (data100*portion)/100;
+        return resultado;
     }
 
     //Carga los ingredientes del alimento
@@ -262,7 +322,8 @@ public class FoodsActivity extends AppCompatActivity {
                     return;
                 }
                 listaAditivos = response.body();
-                mostrarAditivos(listaAditivos);
+                String cantidadAditivos = String.valueOf(listaAditivos.size());
+                additives.setText("Aditivos ("+cantidadAditivos+")");
                 //Une las listas de ingredientes y de aditivos para efectuar el orden
                 List<Ingredient> listaFinal = unirListas(listaIngredientes, listaAditivos);
                 mostrarIngredientes(listaFinal);
@@ -290,18 +351,6 @@ public class FoodsActivity extends AppCompatActivity {
             i++;
         }
         tvIngredientes.setText(ingredientes);
-    }
-
-    //Muestra sólo los aditivos en una lista
-    public void mostrarAditivos(List <Ingredient> lista){
-        int tamano = lista.size();
-        int i = 0;
-        String aditivos = "Aditivos: ";
-        adaptador = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_list_item_1,
-                lista);
-        lvAditivos.setAdapter(adaptador);
     }
 
     //Une las listas de ingredientes y aditivos para realizar el orden
@@ -352,34 +401,15 @@ public class FoodsActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     return;
                 }
-                List<Recommendation> listaRecomendaciones = response.body();
-                String recomendacion = listaRecomendaciones.get(0).getRecommendation();
-                hacerToast(recomendacion);
+                listaRecomendaciones = response.body();
+                String cantidadRecomendaciones = String.valueOf(listaRecomendaciones.size());
+                recommendations.setText("Recomendaciones ("+cantidadRecomendaciones+")");
             }
 
             @Override
             public void onFailure(Call<List<Recommendation>> call, Throwable t) {
             }
         });
-    }
-
-    //Va hacia la actividad de aditivos para mostrar su información detallada
-    public void showAdditive(Additive aditivo){
-        Intent i = new Intent(this, AdditiveActivity.class);
-
-        i.putExtra("Aditivo",aditivo.getAdditive());
-        i.putExtra("Peligro",aditivo.getHazard());
-        i.putExtra("Origen",aditivo.getSource());
-        i.putExtra("Clasificacion",aditivo.getClassification());
-        i.putExtra("Descripcion",aditivo.getDescription());
-        i.putExtra("Uso",aditivo.getUsage());
-        i.putExtra("EfectosSecundarios",aditivo.getSecondaryEffects());
-
-        i.putExtra("CodigoE",eCode);
-        i.putExtra("CodigoBarras",CodigoBarras);
-        i.putExtra("Nombre",Nombre);
-
-        startActivity(i);
     }
 
     //Carga el menú a la toolbar
@@ -389,9 +419,38 @@ public class FoodsActivity extends AppCompatActivity {
         return true;
     }
 
-    //TODO: Método de prueba
-    public void hacerToast(String i){
-        Toast.makeText(this, i, Toast.LENGTH_LONG).show();
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+
+            case R.id.btFoodsAdditives: {
+                if(listaAditivos.size()>0) {
+                    Intent intent = new Intent(this, AdditivesActivity.class);
+                    intent.putExtra("CodigoBarras", CodigoBarras);
+                    intent.putExtra("Nombre", Nombre);
+                    startActivity(intent);
+                }
+                else{
+                    hacerToast(getResources().getString(R.string.dialog_no_additives));
+                }
+                break;
+            }
+            case R.id.btFoodsRecommendations: {
+                if(listaRecomendaciones.size()>0) {
+                    Intent intent = new Intent(this, RecommendationsActivity.class);
+                    intent.putExtra("CodigoBarras", CodigoBarras);
+                    intent.putExtra("Nombre", Nombre);
+                    startActivity(intent);
+                }
+                else{
+                    hacerToast(getResources().getString(R.string.dialog_no_recommendations));
+                }
+                break;
+            }
+        }
+    }
+
+    public void hacerToast(String contenido){
+        Toast.makeText(this, contenido, Toast.LENGTH_LONG).show();
     }
 }
-
