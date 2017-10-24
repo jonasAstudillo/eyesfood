@@ -170,6 +170,18 @@
     <string name="foods_info_nutricional_sodio">Sodio (mg)</string>
     <string name="foods_info_nutricional_nota">* Contenido no informado</string>
 
+    <!-- Additives activity -->
+    <string name="additives_description">Descripcion: </string>
+    <string name="additives_usage">Uso: </string>
+    <string name="additives_secondary_effects">Efectos secundarios: </string>
+
     <string name="search_hint">Buscar alimento o aditivo</string>
+    <string name="title_activity_additives">AdditivesActivity</string>
+
+    <string name="dialog_no_additives">El alimento está libre de aditivos químicos</string>
+    <string name="dialog_no_recommendations">El alimento no tiene recomendaciones de consumo</string>
+
+    <string name="recommendations_title">Recomendación #</string>
+    <string name="title_activity_recommendations">RecommendationsActivity</string>
 
 </resources>

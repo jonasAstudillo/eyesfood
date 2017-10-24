@@ -56,15 +56,6 @@
         </activity>
         -->
         <activity
-            android:name=".ui.AdditiveActivity"
-            android:label="@string/title_activity_additive"
-            android:parentActivityName=".ui.FoodsActivity"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.jonsmauricio.eyesfood.ui.FoodsActivity" />
-        </activity>
-        <activity
             android:name=".ui.FoodsActivity"
             android:label="@string/title_activity_foods1"
             android:parentActivityName=".ui.HistoryActivity"
@@ -72,6 +63,24 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.jonsmauricio.eyesfood.ui.HistoryActivity" />
+        </activity>
+        <activity
+            android:name=".ui.AdditivesActivity"
+            android:label="@string/title_activity_additives"
+            android:parentActivityName=".ui.FoodsActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.jonsmauricio.eyesfood.ui.FoodsActivity" />
+        </activity>
+        <activity
+            android:name=".ui.RecommendationsActivity"
+            android:label="@string/title_activity_recommendations"
+            android:parentActivityName=".ui.FoodsActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.jonsmauricio.eyesfood.ui.FoodsActivity" />
         </activity>
     </application>
 

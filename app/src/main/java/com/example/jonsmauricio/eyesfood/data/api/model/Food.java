@@ -22,6 +22,8 @@ public class Food {
     private String productId;
     @SerializedName("nombre")
     private String name;
+    @SerializedName("unidadMedida")
+    private String unit;
     @SerializedName("contenidoNeto")
     private int content;
     @SerializedName("energia")
@@ -34,6 +36,8 @@ public class Food {
     private float saturatedFat;
     @SerializedName("grasaTrans")
     private float transFat;
+    @SerializedName("colesterol")
+    private float cholesterol;
     @SerializedName("grasaMono")
     private float monoFat;
     @SerializedName("grasaPoli")
@@ -58,9 +62,10 @@ public class Food {
     private String officialPhoto;
 
     public Food(String barCode, String brandCode, String userId, String foodHazardId, float foodHazard, String productId,
-                String name, int content, float energy, float protein, float totalFat, float saturatedFat, float transFat,
-                float monoFat, float poliFat, float carbo, float totalSugar, float fiber, float sodium, String portion,
-                float portionGr, String date, float glycemicIndex, String officialPhoto) {
+                String name, String unit, int content, float energy, float protein, float totalFat, float saturatedFat,
+                float transFat, float cholesterol, float monoFat, float poliFat, float carbo, float totalSugar, float fiber,
+                float sodium, String portion, float portionGr, String date, float glycemicIndex, String officialPhoto) {
+
         this.barCode = barCode;
         this.brandCode = brandCode;
         this.userId = userId;
@@ -68,12 +73,14 @@ public class Food {
         this.foodHazard = foodHazard;
         this.productId = productId;
         this.name = name;
+        this.unit = unit;
         this.content = content;
         this.energy = energy;
         this.protein = protein;
         this.totalFat = totalFat;
         this.saturatedFat = saturatedFat;
         this.transFat = transFat;
+        this.cholesterol = cholesterol;
         this.monoFat = monoFat;
         this.poliFat = poliFat;
         this.carbo = carbo;
@@ -115,6 +122,10 @@ public class Food {
         return name;
     }
 
+    public String getUnit() {
+        return unit;
+    }
+
     //No se si este lo uso
     public void setName(String name) {
         this.name = name;
@@ -142,6 +153,10 @@ public class Food {
 
     public float getTransFat() {
         return transFat;
+    }
+
+    public float getCholesterol() {
+        return cholesterol;
     }
 
     public float getMonoFat() {
