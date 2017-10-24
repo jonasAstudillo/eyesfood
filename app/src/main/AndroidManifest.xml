@@ -57,7 +57,7 @@
         -->
         <activity
             android:name=".ui.FoodsActivity"
-            android:label="@string/title_activity_foods1"
+            android:label="@string/title_activity_foods"
             android:parentActivityName=".ui.HistoryActivity"
             android:theme="@style/AppTheme">
             <meta-data
@@ -81,6 +81,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.jonsmauricio.eyesfood.ui.FoodsActivity" />
+        </activity>
+        <activity
+            android:name=".ui.SearchActivity"
+            android:label="@string/title_activity_search"
+            android:parentActivityName=".ui.HistoryActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.jonsmauricio.eyesfood.ui.HistoryActivity" />
         </activity>
     </application>
 
