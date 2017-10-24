@@ -73,9 +73,9 @@ public class AdditivesAdapter extends RecyclerView.Adapter<AdditivesAdapter.Addi
         origen = items.get(i).getSource().toLowerCase();
         viewHolder.title.setText(items.get(i).getAdditive() + " ("+items.get(i).geteCode()+")");
         viewHolder.shortDescription.setText(items.get(i).getClassification() + " " + peligro + " de origen " + origen +".");
-        viewHolder.description.append(" " + items.get(i).getDescription());
-        viewHolder.usage.append(" " + items.get(i).getUsage());
-        viewHolder.secondaryEffects.append(" " + items.get(i).getSecondaryEffects());
+        viewHolder.description.setText("Descripción: " + items.get(i).getDescription());
+        viewHolder.usage.setText("Uso: " + items.get(i).getUsage());
+        viewHolder.secondaryEffects.setText("Efectos secundarios " + items.get(i).getSecondaryEffects());
 
         switch (peligro){
             case "inocuo":

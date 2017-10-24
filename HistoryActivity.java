@@ -21,11 +21,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.view.View.OnClickListener;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.jonsmauricio.eyesfood.R;
@@ -35,8 +33,8 @@ import com.example.jonsmauricio.eyesfood.data.api.model.HistoryFoodBody;
 import com.example.jonsmauricio.eyesfood.data.api.model.ShortFood;
 import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
 import com.google.zxing.client.android.CaptureActivity;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -50,7 +48,6 @@ public class HistoryActivity extends AppCompatActivity
 
     Retrofit mRestAdapter;
     EyesFoodApi mEyesFoodApi;
-    private ListView lvHistorial;
     private ArrayAdapter<ShortFood> adaptador;
 
     //Obtengo token e id de Usuario
@@ -62,6 +59,8 @@ public class HistoryActivity extends AppCompatActivity
     private HistoryAdapter adapter;
     private RecyclerView.LayoutManager lManager;
     private List<ShortFood> historial;
+
+    MaterialSearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,9 +80,10 @@ public class HistoryActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        searchView = (MaterialSearchView) findViewById(R.id.search_view);
+
         // TODO: 19-10-2017 Borrar este botón de prueba
         Button cerrarSesionPrueba = (Button) findViewById(R.id.button);
-        lvHistorial = (ListView) findViewById(R.id.lvHistorial);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(this);
@@ -106,17 +106,6 @@ public class HistoryActivity extends AppCompatActivity
 
         // Crear conexión a la API de EyesFood
         mEyesFoodApi = mRestAdapter.create(EyesFoodApi.class);
-
-        //Click listener de la lista de cards
-        lvHistorial.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // TODO: 19-10-2017 Ver si esto es realmente necesario, funciona si dejo el onclick solo
-                ShortFood currentFood = adaptador.getItem(position);
-                String barCode = currentFood.getBarCode();
-                loadFoodsFromHistory(tokenFinal, barCode);
-            }
-        });
     }
 
     //Método de actualización
@@ -398,6 +387,25 @@ public class HistoryActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.history, menu);
+
+        MenuItem item = menu.findItem(R.id.searchHistory);
+        searchView.setMenuItem(item);
+
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(getApplicationContext(), query + " TextSubmit", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(getApplicationContext(), SearchActivity.class);
+                startActivity(i);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Toast.makeText(getApplicationContext(), newText + " TextChange", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
         return true;
     }
 

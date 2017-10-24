@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
@@ -72,13 +74,9 @@ public class AdditivesActivity extends AppCompatActivity {
             Nombre = (String) b.get("Nombre");
             setTitle(Nombre);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
 
         loadAdditives(tokenFinal, CodigoBarras);
+        Log.d("myTag", "en on create");
     }
 
     //Carga la lista de aditivos
@@ -134,7 +132,7 @@ public class AdditivesActivity extends AppCompatActivity {
                 i.putExtra("CodigoBarras", CodigoBarras);
                 i.putExtra("Nombre", Nombre);
                 startActivity(i);
-                return(true);
+                return true;
         }
 
         return(super.onOptionsItemSelected(item));
