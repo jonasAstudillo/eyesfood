@@ -99,4 +99,9 @@
     <string name="search_foods_title">Alimentos</string>
     <string name="search_additives_title">Aditivos</string>
 
+    <string name="search_progress_text">Buscando...</string>
+    <string name="search_empty_state">Lo sentimos, no se encontraron resultados</string>
+    <string name="search_foods_header">Alimentos</string>
+    <string name="search_additives_header">Aditivos</string>
+
 </resources>

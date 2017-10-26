@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/frame"
@@ -10,14 +10,73 @@
     tools:showIn="@layout/activity_search"
     android:layout_below="@+id/toolbarSearch">
 
+    <TextView
+    android:id="@+id/tvSearchFoodsHeader"
+    style="@style/Base.TextAppearance.AppCompat.Widget.PopupMenu.Header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/search_foods_header"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"/>
+
     <ListView
         android:id="@+id/lvResultFoods"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvSearchFoodsHeader">
     </ListView>
 
+   <TextView
+        android:id="@+id/tvSearchAdditivesHeader"
+        style="@style/Base.TextAppearance.AppCompat.Widget.PopupMenu.Header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search_additives_header"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+       android:layout_below="@id/lvResultFoods"/>
 
+    <ListView
+        android:id="@+id/lvResultAdditives"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvSearchAdditivesHeader">
+    </ListView>
 
+    <TextView
+        android:id="@+id/tvSearchProgressText"
+        style="@style/SubheadingBlack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search_progress_text"
+        android:textAlignment="center"
+        android:paddingTop="16dp"
+        android:visibility="gone"/>
 
-</FrameLayout>
+    <ProgressBar
+        android:id="@+id/pbSearchProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:indeterminate="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:paddingTop="32dp"
+        android:indeterminateTint="@color/colorAccent"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tvSearchEmptyState"
+        style="@style/SubheadingBlack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search_empty_state"
+        android:textAlignment="center"
+        android:layout_centerInParent="true"
+        android:paddingTop="16dp"
+        android:visibility="gone"/>
+
+</RelativeLayout>
