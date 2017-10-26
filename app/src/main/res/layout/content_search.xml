@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:paddingTop="8dp"
     tools:context="com.example.jonsmauricio.eyesfood.ui.SearchActivity"
-    tools:showIn="@layout/activity_search">
+    tools:showIn="@layout/activity_search"
+    android:layout_below="@+id/toolbarSearch">
 
-</android.support.constraint.ConstraintLayout>
+    <ListView
+        android:id="@+id/lvResultFoods"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </ListView>
+
+
+
+
+</FrameLayout>

@@ -94,4 +94,9 @@
     <string name="title_activity_recommendations">Recomendaciones</string>
     <string name="title_activity_search">Buscar</string>
 
+    <string name="log_out">Salir</string>
+
+    <string name="search_foods_title">Alimentos</string>
+    <string name="search_additives_title">Aditivos</string>
+
 </resources>
