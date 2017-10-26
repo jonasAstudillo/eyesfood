@@ -384,7 +384,7 @@ public class HistoryActivity extends AppCompatActivity
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Intent i = new Intent(getApplicationContext(), SearchActivity.class);
-                i.putExtra("query",query);
+                i.putExtra("query", query);
                 startActivity(i);
                 return false;
             }
