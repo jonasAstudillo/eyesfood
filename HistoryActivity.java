@@ -22,7 +22,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
@@ -51,7 +50,6 @@ public class HistoryActivity extends AppCompatActivity
     private ArrayAdapter<ShortFood> adaptador;
 
     //Obtengo token e id de Usuario
-    private String tokenFinal;
     private String userIdFinal;
 
     //Instancias globales para el Card view
@@ -73,9 +71,8 @@ public class HistoryActivity extends AppCompatActivity
             return;
         }
 
-        tokenFinal = SessionPrefs.get(this).getToken();
         userIdFinal = SessionPrefs.get(this).getUserId();
-
+        Log.d("myTag","User: "+userIdFinal);
         setContentView(R.layout.activity_history);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,11 +80,9 @@ public class HistoryActivity extends AppCompatActivity
         searchView = (MaterialSearchView) findViewById(R.id.search_view);
 
         // TODO: 19-10-2017 Borrar este botón de prueba
-        Button cerrarSesionPrueba = (Button) findViewById(R.id.button);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(this);
-        cerrarSesionPrueba.setOnClickListener(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -114,15 +109,15 @@ public class HistoryActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        loadHistoryFoods(tokenFinal, userIdFinal);
+        loadHistoryFoods(userIdFinal);
     }
 
     //Carga alimentos en el historial
     //Token: token de autorización
     //UserId: Id de usuario
     // TODO: 19-10-2017 Cuando haya más listas los métodos son iguales a este
-    public void loadHistoryFoods(String token, String userId) {
-        Call<List<ShortFood>> call = mEyesFoodApi.getFoodsInHistory(token, userId);
+    public void loadHistoryFoods(String userId) {
+        Call<List<ShortFood>> call = mEyesFoodApi.getFoodsInHistory(userId);
         call.enqueue(new Callback<List<ShortFood>>() {
             @Override
             public void onResponse(Call<List<ShortFood>> call,
@@ -176,11 +171,6 @@ public class HistoryActivity extends AppCompatActivity
                 }
                 break;
             }
-            case R.id.button:{
-                SessionPrefs.get(HistoryActivity.this).logOut();
-                finish();
-                break;
-            }
         }
     }
 
@@ -189,15 +179,14 @@ public class HistoryActivity extends AppCompatActivity
     @Override
     public void onClick(View view, int position) {
         ShortFood food = historial.get(position);
-        loadFoodsFromHistory(tokenFinal, food.getBarCode());
-
+        loadFoodsFromHistory(food.getBarCode());
     }
 
     //Retorna un alimento al pinchar en el historial
     //Token: Token de autorización
     //Barcode: Código de barras del alimento a retornar
-    public void loadFoodsFromHistory(String token, String barcode) {
-        Call<Food> call = mEyesFoodApi.getFood(token, barcode);
+    public void loadFoodsFromHistory(String barcode) {
+        Call<Food> call = mEyesFoodApi.getFood(barcode);
         call.enqueue(new Callback<Food>() {
             @Override
             public void onResponse(Call<Food> call,
@@ -222,8 +211,8 @@ public class HistoryActivity extends AppCompatActivity
     //Retorna un alimento
     //Token: Token de autorización
     //Barcode: Código de barras del alimento a retornar
-    public void loadFoods(String token, String barcode) {
-        Call<Food> call = mEyesFoodApi.getFood(token, barcode);
+    public void loadFoods(String barcode) {
+        Call<Food> call = mEyesFoodApi.getFood(barcode);
         call.enqueue(new Callback<Food>() {
             @Override
             public void onResponse(Call<Food> call,
@@ -235,7 +224,7 @@ public class HistoryActivity extends AppCompatActivity
                 //Si entro acá el alimento existe en la BD y lo obtengo
                 Food resultado = response.body();
                 //Veo si está en el historial
-                isFoodInHistory(tokenFinal, userIdFinal, resultado.getBarCode());
+                isFoodInHistory(userIdFinal, resultado.getBarCode());
 
                 showFoodsScreen(resultado);
             }
@@ -297,7 +286,7 @@ public class HistoryActivity extends AppCompatActivity
             //Si obtiene el código
             if (resultCode == RESULT_OK) {
                 String contents = intent.getStringExtra("SCAN_RESULT");
-                loadFoods(tokenFinal, contents);
+                loadFoods(contents);
             }
             //Si no obtiene el código
             else if (resultCode == RESULT_CANCELED) {
@@ -309,8 +298,8 @@ public class HistoryActivity extends AppCompatActivity
     }
 
     //Comprueba si el alimento consultado está en el historial del usuario
-    public void isFoodInHistory(String token, String userId, final String barcode){
-        Call<ShortFood> call = mEyesFoodApi.isInHistory(token, userId, barcode);
+    public void isFoodInHistory(String userId, final String barcode){
+        Call<ShortFood> call = mEyesFoodApi.isInHistory(userId, barcode);
         call.enqueue(new Callback<ShortFood>() {
             @Override
             public void onResponse(Call<ShortFood> call,
@@ -394,15 +383,14 @@ public class HistoryActivity extends AppCompatActivity
         searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Toast.makeText(getApplicationContext(), query + " TextSubmit", Toast.LENGTH_LONG).show();
                 Intent i = new Intent(getApplicationContext(), SearchActivity.class);
+                i.putExtra("query",query);
                 startActivity(i);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Toast.makeText(getApplicationContext(), newText + " TextChange", Toast.LENGTH_LONG).show();
                 return false;
             }
         });
@@ -418,6 +406,8 @@ public class HistoryActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            SessionPrefs.get(HistoryActivity.this).logOut();
             return true;
         }
 

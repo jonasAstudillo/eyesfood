@@ -2,8 +2,6 @@ package com.example.jonsmauricio.eyesfood.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,15 +9,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
 import com.example.jonsmauricio.eyesfood.data.api.model.Additive;
-import com.example.jonsmauricio.eyesfood.data.api.model.ShortFood;
-import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
 
 import java.util.List;
 
@@ -38,9 +31,6 @@ public class AdditivesActivity extends AppCompatActivity {
 
     Retrofit mRestAdapter;
     EyesFoodApi mEyesFoodApi;
-
-    //Obtengo token de Usuario
-    private String tokenFinal;
 
     private String CodigoBarras;
     private String Nombre;
@@ -64,8 +54,6 @@ public class AdditivesActivity extends AppCompatActivity {
         // Crear conexión a la API de EyesFood
         mEyesFoodApi = mRestAdapter.create(EyesFoodApi.class);
 
-        tokenFinal = SessionPrefs.get(this).getToken();
-
         Intent i = getIntent();
         Bundle b = i.getExtras();
 
@@ -75,13 +63,13 @@ public class AdditivesActivity extends AppCompatActivity {
             setTitle(Nombre);
         }
 
-        loadAdditives(tokenFinal, CodigoBarras);
+        loadAdditives(CodigoBarras);
         Log.d("myTag", "en on create");
     }
 
     //Carga la lista de aditivos
-    public void loadAdditives(String token, String barcode){
-        Call<List<Additive>> call = mEyesFoodApi.getFullAdditives(token, barcode);
+    public void loadAdditives(String barcode){
+        Call<List<Additive>> call = mEyesFoodApi.getFullAdditives(barcode);
         call.enqueue(new Callback<List<Additive>>() {
             @Override
             public void onResponse(Call<List<Additive>> call,

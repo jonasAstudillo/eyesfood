@@ -186,17 +186,17 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             collapser.setTitle(Nombre); // Cambiar título
             //setTitle(Nombre);
             CodigoBarras = (String) b.get("CodigoBarras");
-            loadFoods(tokenFinal, CodigoBarras);
-            loadIngredients(tokenFinal, CodigoBarras);
-            loadRecommendations(tokenFinal, CodigoBarras);
+            loadFoods(CodigoBarras);
+            loadIngredients(CodigoBarras);
+            loadRecommendations(CodigoBarras);
         }
     }
 
     //Retorna un alimento
     //Token: Token de autorización
     //Barcode: Código de barras del alimento a retornar
-    public void loadFoods(String token, String barcode) {
-        Call<Food> call = mEyesFoodApi.getFood(token, barcode);
+    public void loadFoods(String barcode) {
+        Call<Food> call = mEyesFoodApi.getFood(barcode);
         call.enqueue(new Callback<Food>() {
             @Override
             public void onResponse(Call<Food> call,
@@ -289,8 +289,8 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     //Carga los ingredientes del alimento
     //token: Autorización
     //barcode: Código de barras del alimento
-    public void loadIngredients(String token, String barcode) {
-        Call<List<Ingredient>> call = mEyesFoodApi.getIngredients(token, barcode);
+    public void loadIngredients(String barcode) {
+        Call<List<Ingredient>> call = mEyesFoodApi.getIngredients(barcode);
         call.enqueue(new Callback<List<Ingredient>>() {
             @Override
             public void onResponse(Call<List<Ingredient>> call,
@@ -299,7 +299,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
                     return;
                 }
                 listaIngredientes = response.body();
-                loadAdditives(tokenFinal, CodigoBarras, listaIngredientes);
+                loadAdditives(CodigoBarras, listaIngredientes);
             }
 
             @Override
@@ -312,8 +312,8 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
     //Carga los aditivos del alimento
     //listaIngredientes: Lista obtenida en load ingredients
-    public void loadAdditives(String token, String barcode, final List<Ingredient> listaIngredientes) {
-        Call<List<Ingredient>> call = mEyesFoodApi.getAdditives(token, barcode);
+    public void loadAdditives(String barcode, final List<Ingredient> listaIngredientes) {
+        Call<List<Ingredient>> call = mEyesFoodApi.getAdditives(barcode);
         call.enqueue(new Callback<List<Ingredient>>() {
             @Override
             public void onResponse(Call<List<Ingredient>> call,
@@ -392,8 +392,8 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     }
 
     //Carga las recomendaciones del alimento
-    public void loadRecommendations(String token, String barcode) {
-        Call<List<Recommendation>> call = mEyesFoodApi.getRecommendations(token, barcode);
+    public void loadRecommendations(String barcode) {
+        Call<List<Recommendation>> call = mEyesFoodApi.getRecommendations(barcode);
         call.enqueue(new Callback<List<Recommendation>>() {
             @Override
             public void onResponse(Call<List<Recommendation>> call,

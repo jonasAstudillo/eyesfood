@@ -28,7 +28,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RecommendationsActivity extends AppCompatActivity {
+public class RecommendationsActivity extends AppCompatActivity{
 
     //Instancias globales para el Card view
     private RecyclerView recycler;
@@ -79,12 +79,12 @@ public class RecommendationsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        loadRecommendations(tokenFinal, CodigoBarras);
+        loadRecommendations(CodigoBarras);
     }
 
     //Carga las recomendaciones del alimento
-    public void loadRecommendations(String token, String barcode) {
-        Call<List<Recommendation>> call = mEyesFoodApi.getRecommendations(token, barcode);
+    public void loadRecommendations(String barcode) {
+        Call<List<Recommendation>> call = mEyesFoodApi.getRecommendations(barcode);
         call.enqueue(new Callback<List<Recommendation>>() {
             @Override
             public void onResponse(Call<List<Recommendation>> call,
