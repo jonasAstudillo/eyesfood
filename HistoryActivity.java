@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,6 +60,8 @@ public class HistoryActivity extends AppCompatActivity
     private RecyclerView.LayoutManager lManager;
     private List<ShortFood> historial;
 
+    private String barCode;
+
     MaterialSearchView searchView;
 
     @Override
@@ -72,7 +76,6 @@ public class HistoryActivity extends AppCompatActivity
         }
 
         userIdFinal = SessionPrefs.get(this).getUserId();
-        Log.d("myTag","User: "+userIdFinal);
         setContentView(R.layout.activity_history);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -247,12 +250,30 @@ public class HistoryActivity extends AppCompatActivity
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        finish();
+                        showNewFoodsDialog();
                     }
 
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+
+    private void showNewFoodsDialog(){
+        Bundle bundle = new Bundle();
+        bundle.putString("barCode", barCode);
+        // set Fragmentclass Arguments
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        NewFoodsDialogFragment newFragment = new NewFoodsDialogFragment();
+        newFragment.setArguments(bundle);
+
+        // The device is smaller, so show the fragment fullscreen
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        // For a little polish, specify a transition animation
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        // To make it fullscreen, use the 'content' root view as the container
+        // for the fragment, which is always the root view for the activity
+        transaction.add(android.R.id.content, newFragment).addToBackStack(null).commit();
     }
 
     //Envía los datos del alimento escaneado a la activity que va a mostrar esos datos
@@ -285,8 +306,8 @@ public class HistoryActivity extends AppCompatActivity
         if (requestCode == 0) {
             //Si obtiene el código
             if (resultCode == RESULT_OK) {
-                String contents = intent.getStringExtra("SCAN_RESULT");
-                loadFoods(contents);
+                barCode = intent.getStringExtra("SCAN_RESULT");
+                loadFoods(barCode);
             }
             //Si no obtiene el código
             else if (resultCode == RESULT_CANCELED) {

@@ -54,8 +54,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class FoodsActivity extends AppCompatActivity implements View.OnClickListener {
 
     //Para la info general
-    TextView infoGeneralNombre, infoGeneralProducto, infoGeneralCodigo, infoGeneralMarca, infoGeneralFecha, tvIngredientes,
-            infoNutricional, tvAditivos;
+    TextView infoGeneralNombre, infoGeneralProducto, infoGeneralCodigo, infoGeneralMarca, infoGeneralNeto,
+            infoGeneralFecha, tvIngredientes;
 
     //Para la info nutricional
     TextView porcion, porcionEnvase, energia100, energiaPorcion, proteinas100, proteinasPorcion, grasaTotal100,
@@ -63,7 +63,9 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     grasaTrans100, grasaTransPorcion, colesterol100, colesterolPorcion, hidratos100, hidratosPorcion, azucares100,
     azucaresPorcion, fibra100, fibraPorcion, sodio100, sodioPorcion;
 
-    String CodigoBarras, NombreMarca, Producto, Nombre, Fecha, OfficialPhoto, eCode;
+    String CodigoBarras, NombreMarca, Producto, Nombre, Fecha, OfficialPhoto;
+
+    int Neto;
 
     float Peligro;
     RatingBar infoGeneralRating;
@@ -78,9 +80,6 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
     Retrofit mRestAdapter;
     private EyesFoodApi mEyesFoodApi;
-
-    //Obtengo token de Usuario
-    private String tokenFinal;
 
     //IP de usach alumnos:
     //private final String baseFotoAlimento = "http://158.170.214.219/api.eyesfood.cl/v1/img/food/";
@@ -101,6 +100,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         infoGeneralProducto = (TextView) findViewById(R.id.tvFoodsInfoGeneralProducto);
         infoGeneralCodigo = (TextView) findViewById(R.id.tvFoodsInfoGeneralCodigo);
         infoGeneralMarca = (TextView) findViewById(R.id.tvFoodsInfoGeneralMarca);
+        infoGeneralNeto = (TextView) findViewById(R.id.tvFoodsInfoGeneralNeto);
         infoGeneralFecha = (TextView) findViewById(R.id.tvFoodsInfoGeneralFecha);
         infoGeneralRating = (RatingBar) findViewById(R.id.rbFoodsRating);
 
@@ -175,7 +175,6 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         // Crear conexión a la API de EyesFood
         mEyesFoodApi = mRestAdapter.create(EyesFoodApi.class);
 
-        tokenFinal = SessionPrefs.get(this).getToken();
         Intent i = getIntent();
         Bundle b = i.getExtras();
 
@@ -227,6 +226,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         Peligro = alimento.getFoodHazard();
         Fecha = alimento.getDate();
         NombreMarca = alimento.getBrandCode();
+        Neto = alimento.getContent();
 
         OfficialPhoto = alimento.getOfficialPhoto();
 
@@ -239,6 +239,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         infoGeneralRating.setRating(Peligro);
         infoGeneralCodigo.append(" "+CodigoBarras);
         infoGeneralMarca.append(" "+NombreMarca);
+        infoGeneralNeto.append(" "+Neto+" "+alimento.getUnit());
         infoGeneralFecha.append(" "+Fecha);
     }
 
