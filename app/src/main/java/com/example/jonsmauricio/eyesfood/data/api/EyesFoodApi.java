@@ -86,4 +86,7 @@ public interface EyesFoodApi {
     //Petición que retorna un aditivo, usado para los resultados de búsqueda
     @GET("additives/{eCode}")
     Call<List<Additive>> getAdditive(@Path("eCode") String eCode);
+
+    @POST("foods/new")
+    Call<Food> newFoodSolitude(@Body NewFoodBody newFoodBody);
 }

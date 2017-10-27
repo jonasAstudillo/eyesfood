@@ -67,11 +67,18 @@ android:paddingTop="24dp">
                 android:layout_below="@id/tvFoodsInfoGeneralCodigo"/>
 
             <TextView
+                android:id="@+id/tvFoodsInfoGeneralNeto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/foods_info_general_neto"
+                android:layout_below="@id/tvFoodsInfoGeneralMarca"/>
+
+            <TextView
                 android:id="@+id/tvFoodsInfoGeneralFecha"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/foods_info_general_fecha"
-                android:layout_below="@id/tvFoodsInfoGeneralMarca"/>
+                android:layout_below="@id/tvFoodsInfoGeneralNeto"/>
         </RelativeLayout>
 
     </android.support.v7.widget.CardView>
