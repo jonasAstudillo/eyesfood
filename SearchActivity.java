@@ -43,7 +43,8 @@ public class SearchActivity extends AppCompatActivity {
     private List<SearchResult> resultadoAditivos;
     private ListView resultFoods;
     private ListView resultAdditives;
-    private ArrayAdapter<SearchResult> adaptador;
+    private ArrayAdapter<SearchResult> adaptadorFoods;
+    private ArrayAdapter<SearchResult> adaptadorAdditives;
     private View searchProgress;
     TextView searchProgressText;
     TextView searchEmptyState;
@@ -84,9 +85,21 @@ public class SearchActivity extends AppCompatActivity {
         resultFoods.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                SearchResult currentSearch = adaptador.getItem(position);
+                SearchResult currentSearch = adaptadorFoods.getItem(position);
                 Intent i = new Intent(getApplicationContext(), FoodsActivity.class);
                 i.putExtra("CodigoBarras",currentSearch.getCodigo());
+                i.putExtra("Nombre",currentSearch.getNombre());
+                startActivity(i);
+            }
+        });
+
+        resultAdditives.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                SearchResult currentSearch = adaptadorAdditives.getItem(position);
+                Intent i = new Intent(getApplicationContext(), AdditiveActivity.class);
+                i.putExtra("CodigoE",currentSearch.getCodigo());
+                Log.d("myTag", currentSearch.getCodigo() + currentSearch.getNombre());
                 i.putExtra("Nombre",currentSearch.getNombre());
                 startActivity(i);
             }
@@ -96,6 +109,7 @@ public class SearchActivity extends AppCompatActivity {
         Bundle b = i.getExtras();
 
         if(b != null){
+            showLists(false);
             showProgress(true);
             query = (String) b.get("query");
             makeQueryFoods(query);
@@ -147,11 +161,11 @@ public class SearchActivity extends AppCompatActivity {
         int tamanoLista = lista.size();
         if(tamanoLista > 0) {
             noFoods = false;
-            adaptador = new ArrayAdapter<>(
+            adaptadorFoods = new ArrayAdapter<>(
                     this,
                     android.R.layout.simple_list_item_1,
                     lista);
-            resultFoods.setAdapter(adaptador);
+            resultFoods.setAdapter(adaptadorFoods);
         }
         else{
             noFoods = true;
@@ -162,17 +176,20 @@ public class SearchActivity extends AppCompatActivity {
         int tamanoLista = lista.size();
         if(tamanoLista > 0) {
             noAdditives = false;
-            adaptador = new ArrayAdapter<>(
+            adaptadorAdditives = new ArrayAdapter<>(
                     this,
                     android.R.layout.simple_list_item_1,
                     lista);
-            resultAdditives.setAdapter(adaptador);
+            resultAdditives.setAdapter(adaptadorAdditives);
         }
         else{
             noAdditives = true;
             showEmptyState(noAdditives, noFoods);
         }
         showProgress(false);
+        if(!noAdditives || !noFoods){
+            showLists(true);
+        }
     }
 
     @Override
@@ -204,38 +221,38 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void showProgress(boolean show) {
-        //Escondo el empty state cuando muestro el progreso
-        showEmptyState(false, false);
+        if(show) {
+            showLists(false);
+            showEmptyState(false, false);
+        }
+        else{
+            showEmptyState(noAdditives, noFoods);
+        }
         searchProgress.setVisibility(show ? View.VISIBLE : View.GONE);
         searchProgressText.setVisibility(show ? View.VISIBLE : View.GONE);
-        //Seteo de nuevo los valores por defecto del emptyState
-        showEmptyState(noAdditives, noFoods);
-
-        if(!emptyState){
-            int visibility = show ? View.GONE : View.VISIBLE;
-            resultFoods.setVisibility(visibility);
-            searchFoodsHeader.setVisibility(visibility);
-            resultAdditives.setVisibility(visibility);
-            searchAdditivesHeader.setVisibility(visibility);
-        }
     }
 
-    public void showEmptyState(boolean noAdditives, boolean noFoods){
-        if(noAdditives && noFoods){
+    private void showLists(boolean show){
+        if(!show){
             resultFoods.setVisibility(View.GONE);
             searchFoodsHeader.setVisibility(View.GONE);
             resultAdditives.setVisibility(View.GONE);
             searchAdditivesHeader.setVisibility(View.GONE);
-            searchEmptyState.setVisibility(View.VISIBLE);
-            emptyState = true;
         }
         else{
             resultFoods.setVisibility(View.VISIBLE);
             searchFoodsHeader.setVisibility(View.VISIBLE);
             resultAdditives.setVisibility(View.VISIBLE);
             searchAdditivesHeader.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void showEmptyState(boolean noAdditives, boolean noFoods){
+        if(noAdditives && noFoods){
+            searchEmptyState.setVisibility(View.VISIBLE);
+        }
+        else{
             searchEmptyState.setVisibility(View.GONE);
-            emptyState = false;
         }
     }
 
