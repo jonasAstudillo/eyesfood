@@ -91,6 +91,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.jonsmauricio.eyesfood.ui.HistoryActivity" />
         </activity>
+        <activity
+            android:name=".ui.AdditiveActivity"
+            android:label="@string/title_activity_additive"
+            android:parentActivityName=".ui.HistoryActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.jonsmauricio.eyesfood.ui.HistoryActivity" />
+        </activity>
     </application>
 
 </manifest>

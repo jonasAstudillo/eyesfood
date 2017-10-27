@@ -82,4 +82,8 @@ public interface EyesFoodApi {
     //Petición que retorna aditivos desde una búsqueda
     @GET("search/additives/{query}")
     Call<List<SearchResult>> getAdditivesQuery(@Path("query") String query);
+
+    //Petición que retorna un aditivo, usado para los resultados de búsqueda
+    @GET("additives/{eCode}")
+    Call<List<Additive>> getAdditive(@Path("eCode") String eCode);
 }

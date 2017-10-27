@@ -103,5 +103,6 @@
     <string name="search_empty_state">Lo sentimos, no se encontraron resultados</string>
     <string name="search_foods_header">Alimentos</string>
     <string name="search_additives_header">Aditivos</string>
+    <string name="title_activity_additive">AdditiveActivity</string>
 
 </resources>
