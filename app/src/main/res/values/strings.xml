@@ -6,6 +6,9 @@
 
     <!--TODO: Cuando hice el activity foods me salió que este string ya está hecho-->
     <string name="action_settings">Opciones</string>
+    <string name="action_complaint">Denunciar alimento</string>
+    <string name="action_add_photos">Agregar fotos</string>
+
     <string name="title_activity_login">Iniciar sesión</string>
 
     <!-- Strings related to login -->
@@ -107,7 +110,7 @@
     <string name="search_empty_state">Lo sentimos, no se encontraron resultados</string>
     <string name="search_foods_header">Alimentos</string>
     <string name="search_additives_header">Aditivos</string>
-    <string name="title_activity_additive">AdditiveActivity</string>
+    <string name="title_activity_additive">Aditivo</string>
 
     <string name="send_food">Enviar</string>
 
@@ -115,4 +118,18 @@
     <string name="new_foods_info_nutricional_hidratos">Hidratos de carbono disponibles (g)</string>
     <string name="new_foods_ingredients">Ingredientes: </string>
 
+    <string name="title_new_foods_question">El producto aún no está agregado</string>
+    <string name="message_new_foods_question">¿Deseas agregarlo?</string>
+
+    <string name="title_new_foods">Subir alimento</string>
+    <string name="title_success_solitude_new_foods">Solicitud enviada</string>
+    <string name="message_success_solitude_new_foods">Gracias por tu contribución, tu solicitud será revisada y te informaremos por correo</string>
+    <string name="title_failed_solitude_new_foods">Solicitud incorrecta</string>
+    <string name="message_failed_solitude_new_foods">Parece que no has ingresado ningún campo, por favor ingresa al menos uno</string>
+
+    <string name="ok_dialog">OK</string>
+    <string name="possitive_dialog">Sí</string>
+    <string name="negative_dialog">No</string>
+
+    <string name="title_complaint_foods">Denunciar alimento</string>
 </resources>
