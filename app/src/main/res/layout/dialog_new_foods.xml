@@ -355,6 +355,14 @@
                             style="@style/BodyRegular"/>
                     </android.support.design.widget.TextInputLayout>
 
+                    <TextView
+                        android:id="@+id/tvNoInfo"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:paddingTop="8dp"
+                        android:textStyle="bold"
+                        android:text="@string/foods_info_nutricional_nota" />
+
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>

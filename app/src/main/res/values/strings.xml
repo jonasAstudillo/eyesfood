@@ -69,7 +69,7 @@
     <string name="foods_title_info_nutricional">Información nutricional</string>
     <string name="foods_info_nutricional_porcion">Porción: </string>
     <string name="foods_info_nutricional_porcion_envase">Porciones por envase: </string>
-    <string name="foods_info_nutricional_porcion_unit">Porción en g o ml: </string>
+    <string name="foods_info_nutricional_porcion_unit">Porción (g o ml): </string>
     <string name="foods_info_nutricional_por_100">100g</string>
     <string name="foods_info_nutricional_por_porcion">1 porción</string>
     <string name="foods_info_nutricional_energia">Energía (kcal)</string>
