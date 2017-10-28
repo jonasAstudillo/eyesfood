@@ -1,38 +1,28 @@
 package com.example.jonsmauricio.eyesfood.ui;
 
-import android.Manifest;
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
-import com.example.jonsmauricio.eyesfood.data.api.model.Additive;
 import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.Ingredient;
 import com.example.jonsmauricio.eyesfood.data.api.model.Recommendation;
-import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
-import com.google.zxing.client.android.CaptureActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -416,7 +406,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     //Carga el menú a la toolbar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_with_settings, menu);
+        getMenuInflater().inflate(R.menu.menu_foods, menu);
         return true;
     }
 
@@ -451,7 +441,43 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_foods_complaint:{
+                Log.d("myTag", "Apreto el botón");
+                showComplaintFoodsDialog();
+            }
+        }
+
+        return(super.onOptionsItemSelected(item));
+    }
+
     public void hacerToast(String contenido){
         Toast.makeText(this, contenido, Toast.LENGTH_LONG).show();
+    }
+
+    private void showComplaintFoodsDialog(){
+        //TODO: Poner los otros datos en variables y mandarlos
+        Bundle bundle = new Bundle();
+        Log.d("myTag",CodigoBarras);
+        bundle.putString("barCode", CodigoBarras);
+        bundle.putString("Nombre", Nombre);
+        bundle.putString("Producto", Producto);
+        bundle.putString("Marca", NombreMarca);
+        bundle.putString("Neto", String.valueOf(Neto));
+        // set Fragmentclass Arguments
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        ComplaintDialogFragment newFragment = new ComplaintDialogFragment();
+        newFragment.setArguments(bundle);
+
+        // The device is smaller, so show the fragment fullscreen
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        // For a little polish, specify a transition animation
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        // To make it fullscreen, use the 'content' root view as the container
+        // for the fragment, which is always the root view for the activity
+        transaction.add(android.R.id.content, newFragment).addToBackStack(null).commit();
     }
 }

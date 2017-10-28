@@ -244,9 +244,9 @@ public class HistoryActivity extends AppCompatActivity
     public void noFood(){
         new AlertDialog.Builder(this)
                 .setIcon(null)
-                .setTitle("El producto aún no está agregado")
-                .setMessage("¿Deseas agregarlo?")
-                .setPositiveButton("Sí", new DialogInterface.OnClickListener()
+                .setTitle(getResources().getString(R.string.title_new_foods_question))
+                .setMessage(getResources().getString(R.string.message_new_foods_question))
+                .setPositiveButton(getResources().getString(R.string.possitive_dialog), new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -254,7 +254,7 @@ public class HistoryActivity extends AppCompatActivity
                     }
 
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton(getResources().getString(R.string.negative_dialog), null)
                 .show();
     }
 

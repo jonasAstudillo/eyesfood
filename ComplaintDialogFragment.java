@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -42,7 +43,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class NewFoodsDialogFragment extends DialogFragment {
+public class ComplaintDialogFragment extends DialogFragment {
     /** The system calls this to get the DialogFragment's layout, regardless
      of whether it's being displayed as a dialog or an embedded fragment. */
 
@@ -52,8 +53,17 @@ public class NewFoodsDialogFragment extends DialogFragment {
             etGrasaSat, etGrasaMono, etGrasaPoli, etGrasaTrans, etColesterol, etHidratos, etAzucares, etFibra, etSodio,
             etIngredientes;
 
+    TextInputLayout tilNombre, tilProducto, tilMarca, tilNeto, tilPorcion, tilPorcionUnit, tilEnergia, tilProteinas,
+            tilGrasaTotal, tilGrasaSat, tilGrasaMono, tilGrasaPoli, tilGrasaTrans, tilColesterol, tilHidratos, tilAzucares,
+            tilFibra, tilSodio, tilIngredientes;
+
     String Nombre, Producto, Marca, Porcion, PorcionUnit, Ingredientes, Neto, Energia, Proteinas, GrasaTotal, GrasaSat,
             GrasaMono, GrasaPoli, GrasaTrans, Colesterol, Hidratos, Azucares, Fibra, Sodio;
+
+    String NombreOriginal, ProductoOriginal, MarcaOriginal, PorcionOriginal, PorcionUnitOriginal, IngredientesOriginal,
+            NetoOriginal, EnergiaOriginal, ProteinasOriginal, GrasaTotalOriginal, GrasaSatOriginal, GrasaMonoOriginal,
+            GrasaPoliOriginal, GrasaTransOriginal, ColesterolOriginal, HidratosOriginal, AzucaresOriginal, FibraOriginal,
+            SodioOriginal;
 
     String Date = "";
 
@@ -72,9 +82,9 @@ public class NewFoodsDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.dialog_new_foods, container, false);
 
         barCode = getArguments().getString("barCode");
-
+        Log.d("myTag",barCode);
         Toolbar toolbar = view.findViewById(R.id.toolbarNewFoods);
-        toolbar.setTitle(getResources().getString(R.string.title_new_foods));
+        toolbar.setTitle(getResources().getString(R.string.title_complaint_foods));
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
@@ -108,26 +118,64 @@ public class NewFoodsDialogFragment extends DialogFragment {
         tvCodigoBarras.append(" "+barCode);
 
         etNombre = getView().findViewById(R.id.etNewFoodsInfoGeneralTitulo);
+        tilNombre = getView().findViewById(R.id.tvNewFoodsInfoGeneralNombre);
+        tilNombre.setHint(tilNombre.getHint() + " " + NombreOriginal);
         etProducto = getView().findViewById(R.id.etNewFoodsInfoGeneralProducto);
+        tilProducto = getView().findViewById(R.id.tvNewFoodsInfoGeneralProducto);
+        tilProducto.setHint(tilProducto.getHint() + " " + ProductoOriginal);
         etMarca = getView().findViewById(R.id.etNewFoodsInfoGeneralMarca);
+        tilMarca = getView().findViewById(R.id.tvNewFoodsInfoGeneralMarca);
+        tilMarca.setHint(tilMarca.getHint() + " " + MarcaOriginal);
         etNeto = getView().findViewById(R.id.etNewFoodsInfoGeneralNeto);
+        tilNeto = getView().findViewById(R.id.tvNewFoodsInfoGeneralNeto);
+        tilNeto.setHint(tilNeto.getHint() + " " + NetoOriginal);
 
         etPorcion = getView().findViewById(R.id.etNewFoodsInfoNutricionalPorcion);
+        tilPorcion = getView().findViewById(R.id.tvNewFoodsInfoNutricionalPorcion);
+        tilPorcion.setHint(tilPorcion.getHint() + " " + PorcionOriginal);
         etPorcionUnit = getView().findViewById(R.id.etNewFoodsInfoNutricionalPorcionUnit);
+        tilPorcionUnit = getView().findViewById(R.id.tvNewFoodsInfoNutricionalPorcionUnit);
+        tilPorcionUnit.setHint(tilPorcionUnit.getHint() + " " + PorcionUnitOriginal);
         etEnergia = getView().findViewById(R.id.etNewFoodsInfoNutricionalEnergia);
+        tilEnergia = getView().findViewById(R.id.tvNewFoodsInfoNutricionalEnergia);
+        tilEnergia.setHint(tilEnergia.getHint() + " " + EnergiaOriginal);
         etProteinas = getView().findViewById(R.id.etNewFoodsInfoNutricionalProteinas);
+        tilProteinas = getView().findViewById(R.id.tvNewFoodsInfoNutricionalProteinas);
+        tilProteinas.setHint(tilProteinas.getHint() + " " + ProteinasOriginal);
         etGrasaTotal = getView().findViewById(R.id.etNewFoodsInfoNutricionalGrasaTotal);
+        tilGrasaTotal = getView().findViewById(R.id.tvNewFoodsInfoNutricionalGrasaTotal);
+        tilGrasaTotal.setHint(tilGrasaTotal.getHint() + " " + GrasaTotalOriginal);
         etGrasaSat = getView().findViewById(R.id.etNewFoodsInfoNutricionalGrasaSat);
+        tilGrasaSat = getView().findViewById(R.id.tvNewFoodsInfoNutricionalGrasaSat);
+        tilGrasaSat.setHint(tilGrasaSat.getHint() + " " + GrasaSatOriginal);
         etGrasaMono = getView().findViewById(R.id.etNewFoodsInfoNutricionalGrasaMono);
+        tilGrasaMono= getView().findViewById(R.id.tvNewFoodsInfoNutricionalGrasaMono);
+        tilGrasaMono.setHint(tilGrasaMono.getHint() + " " + GrasaMonoOriginal);
         etGrasaPoli = getView().findViewById(R.id.etNewFoodsInfoNutricionalGrasaPoli);
+        tilGrasaPoli = getView().findViewById(R.id.tvNewFoodsInfoNutricionalGrasaPoli);
+        tilGrasaPoli.setHint(tilGrasaPoli.getHint() + " " + GrasaPoliOriginal);
         etGrasaTrans = getView().findViewById(R.id.etNewFoodsInfoNutricionalGrasaTrans);
+        tilGrasaTrans = getView().findViewById(R.id.tvNewFoodsInfoNutricionalGrasaTrans);
+        tilGrasaTrans.setHint(tilGrasaTrans.getHint() + " " + GrasaTransOriginal);
         etColesterol = getView().findViewById(R.id.etNewFoodsInfoNutricionalColesterol);
+        tilColesterol = getView().findViewById(R.id.tvNewFoodsInfoNutricionalColesterol);
+        tilColesterol.setHint(tilColesterol.getHint() + " " + ColesterolOriginal);
         etHidratos = getView().findViewById(R.id.etNewFoodsInfoNutricionalHidratos);
+        tilHidratos = getView().findViewById(R.id.tvNewFoodsInfoNutricionalHidratos);
+        tilHidratos.setHint(tilHidratos.getHint() + " " + HidratosOriginal);
         etAzucares = getView().findViewById(R.id.etNewFoodsInfoNutricionalAzucares);
+        tilAzucares = getView().findViewById(R.id.tvNewFoodsInfoNutricionalAzucares);
+        tilAzucares.setHint(tilAzucares.getHint() + " " + AzucaresOriginal);
         etFibra = getView().findViewById(R.id.etNewFoodsInfoNutricionalFibra);
+        tilFibra = getView().findViewById(R.id.tvNewFoodsInfoNutricionalFibra);
+        tilFibra.setHint(tilFibra.getHint() + " " + FibraOriginal);
         etSodio = getView().findViewById(R.id.etNewFoodsInfoNutricionalSodio);
+        tilSodio = getView().findViewById(R.id.tvNewFoodsInfoNutricionalSodio);
+        tilSodio.setHint(tilSodio.getHint() + " " + SodioOriginal);
 
         etIngredientes = getView().findViewById(R.id.etNewFoodsIngredients);
+        tilIngredientes = getView().findViewById(R.id.tvNewFoodsIngredients);
+        tilIngredientes.setHint(tilIngredientes.getHint() + " " + IngredientesOriginal);
 
         userIdFinal = SessionPrefs.get(getContext()).getUserId();
     }
@@ -153,8 +201,9 @@ public class NewFoodsDialogFragment extends DialogFragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.searchHistory).setVisible(false);
-        menu.findItem(R.id.action_settings).setVisible(false);
+        menu.findItem(R.id.action_foods_complaint).setVisible(false);
+        menu.findItem(R.id.action_foods_add_photos).setVisible(false);
+        menu.findItem(R.id.action_foods_settings).setVisible(false);
     }
 
     @Override
