@@ -60,10 +60,10 @@ public class ComplaintDialogFragment extends DialogFragment {
     String Nombre, Producto, Marca, Porcion, PorcionUnit, Ingredientes, Neto, Energia, Proteinas, GrasaTotal, GrasaSat,
             GrasaMono, GrasaPoli, GrasaTrans, Colesterol, Hidratos, Azucares, Fibra, Sodio;
 
-    String NombreOriginal, ProductoOriginal, MarcaOriginal, PorcionOriginal, PorcionUnitOriginal, IngredientesOriginal,
-            NetoOriginal, EnergiaOriginal, ProteinasOriginal, GrasaTotalOriginal, GrasaSatOriginal, GrasaMonoOriginal,
+    String NombreOriginal, ProductoOriginal, MarcaOriginal, PorcionOriginal, PorcionUnitOriginal, NetoOriginal,
+            EnergiaOriginal, ProteinasOriginal, GrasaTotalOriginal, GrasaSatOriginal, GrasaMonoOriginal,
             GrasaPoliOriginal, GrasaTransOriginal, ColesterolOriginal, HidratosOriginal, AzucaresOriginal, FibraOriginal,
-            SodioOriginal;
+            SodioOriginal, Unit;
 
     String Date = "";
 
@@ -82,7 +82,26 @@ public class ComplaintDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.dialog_new_foods, container, false);
 
         barCode = getArguments().getString("barCode");
-        Log.d("myTag",barCode);
+        NombreOriginal = getArguments().getString("Nombre");
+        ProductoOriginal = getArguments().getString("Producto");
+        MarcaOriginal = getArguments().getString("Marca");
+        NetoOriginal = getArguments().getString("Neto");
+        PorcionOriginal = getArguments().getString("Porcion");
+        PorcionUnitOriginal = getArguments().getString("PorcionUnit");
+        EnergiaOriginal = getArguments().getString("Energia");
+        ProteinasOriginal = getArguments().getString("Proteinas");
+        GrasaTotalOriginal = getArguments().getString("GrasaTotal");
+        GrasaSatOriginal = getArguments().getString("GrasaSat");
+        GrasaMonoOriginal = getArguments().getString("GrasaMono");
+        GrasaPoliOriginal = getArguments().getString("GrasaPoli");
+        GrasaTransOriginal = getArguments().getString("GrasaTrans");
+        ColesterolOriginal = getArguments().getString("Colesterol");
+        HidratosOriginal = getArguments().getString("Hidratos");
+        AzucaresOriginal = getArguments().getString("Azucares");
+        FibraOriginal = getArguments().getString("Fibra");
+        SodioOriginal = getArguments().getString("Sodio");
+        Unit = getArguments().getString("Unit");
+
         Toolbar toolbar = view.findViewById(R.id.toolbarNewFoods);
         toolbar.setTitle(getResources().getString(R.string.title_complaint_foods));
 
@@ -128,14 +147,14 @@ public class ComplaintDialogFragment extends DialogFragment {
         tilMarca.setHint(tilMarca.getHint() + " " + MarcaOriginal);
         etNeto = getView().findViewById(R.id.etNewFoodsInfoGeneralNeto);
         tilNeto = getView().findViewById(R.id.tvNewFoodsInfoGeneralNeto);
-        tilNeto.setHint(tilNeto.getHint() + " " + NetoOriginal);
+        tilNeto.setHint(tilNeto.getHint() + " " + NetoOriginal + Unit);
 
         etPorcion = getView().findViewById(R.id.etNewFoodsInfoNutricionalPorcion);
         tilPorcion = getView().findViewById(R.id.tvNewFoodsInfoNutricionalPorcion);
         tilPorcion.setHint(tilPorcion.getHint() + " " + PorcionOriginal);
         etPorcionUnit = getView().findViewById(R.id.etNewFoodsInfoNutricionalPorcionUnit);
         tilPorcionUnit = getView().findViewById(R.id.tvNewFoodsInfoNutricionalPorcionUnit);
-        tilPorcionUnit.setHint(tilPorcionUnit.getHint() + " " + PorcionUnitOriginal);
+        tilPorcionUnit.setHint(tilPorcionUnit.getHint() + " " + PorcionUnitOriginal + Unit);
         etEnergia = getView().findViewById(R.id.etNewFoodsInfoNutricionalEnergia);
         tilEnergia = getView().findViewById(R.id.tvNewFoodsInfoNutricionalEnergia);
         tilEnergia.setHint(tilEnergia.getHint() + " " + EnergiaOriginal);
@@ -174,8 +193,6 @@ public class ComplaintDialogFragment extends DialogFragment {
         tilSodio.setHint(tilSodio.getHint() + " " + SodioOriginal);
 
         etIngredientes = getView().findViewById(R.id.etNewFoodsIngredients);
-        tilIngredientes = getView().findViewById(R.id.tvNewFoodsIngredients);
-        tilIngredientes.setHint(tilIngredientes.getHint() + " " + IngredientesOriginal);
 
         userIdFinal = SessionPrefs.get(getContext()).getUserId();
     }

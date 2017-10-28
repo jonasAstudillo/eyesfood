@@ -55,6 +55,10 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
     String CodigoBarras, NombreMarca, Producto, Nombre, Fecha, OfficialPhoto;
 
+    String Porcion, PorcionUnit, Energia, Proteinas, GrasaTotal, GrasaSat, GrasaMono, GrasaPoli, GrasaTrans,
+            Colesterol, Hidratos, Azucares, Fibra, Sodio, Unit;
+
+
     int Neto;
 
     float Peligro;
@@ -235,6 +239,10 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
     //Muestra la información nutricional del alimento
     public void showNutritionFacts(Food alimento){
+        Porcion = alimento.getPortion();
+        PorcionUnit = String.valueOf(alimento.getPortionGr());
+        Unit = alimento.getUnit();
+
         float portion = alimento.getPortionGr();
         porcion.append(" "+alimento.getPortion());
         porcion.append(" ("+portion+" "+alimento.getUnit()+")");
@@ -252,6 +260,19 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         setTextNutrition(alimento.getTotalSugar(), portion, azucares100, azucaresPorcion);
         setTextNutrition(alimento.getFiber(), portion, fibra100, fibraPorcion);
         setTextNutrition(alimento.getSodium(), portion, sodio100, sodioPorcion);
+
+        Energia = String.valueOf(energia100.getText());
+        Proteinas = String.valueOf(proteinas100.getText());
+        GrasaTotal = String.valueOf(grasaTotal100.getText());
+        GrasaSat = String.valueOf(grasaSaturada100.getText());
+        GrasaMono = String.valueOf(grasaMono100.getText());
+        GrasaPoli = String.valueOf(grasaPoli100.getText());
+        GrasaTrans = String.valueOf(grasaTrans100.getText());
+        Colesterol = String.valueOf(colesterol100.getText());
+        Hidratos = String.valueOf(hidratos100.getText());
+        Azucares = String.valueOf(azucares100.getText());
+        Fibra = String.valueOf(fibra100.getText());
+        Sodio = String.valueOf(sodio100.getText());
     }
 
     public void setTextNutrition(float content, float portion, TextView tv100, TextView tvPortion){
@@ -460,12 +481,26 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     private void showComplaintFoodsDialog(){
         //TODO: Poner los otros datos en variables y mandarlos
         Bundle bundle = new Bundle();
-        Log.d("myTag",CodigoBarras);
         bundle.putString("barCode", CodigoBarras);
         bundle.putString("Nombre", Nombre);
         bundle.putString("Producto", Producto);
         bundle.putString("Marca", NombreMarca);
         bundle.putString("Neto", String.valueOf(Neto));
+        bundle.putString("Porcion", String.valueOf(Porcion));
+        bundle.putString("PorcionUnit", String.valueOf(PorcionUnit));
+        bundle.putString("Energia", String.valueOf(Energia));
+        bundle.putString("Proteinas", String.valueOf(Proteinas));
+        bundle.putString("GrasaTotal", String.valueOf(GrasaTotal));
+        bundle.putString("GrasaSat", String.valueOf(GrasaSat));
+        bundle.putString("GrasaMono", String.valueOf(GrasaMono));
+        bundle.putString("GrasaPoli", String.valueOf(GrasaPoli));
+        bundle.putString("GrasaTrans", String.valueOf(GrasaTrans));
+        bundle.putString("Colesterol", String.valueOf(Colesterol));
+        bundle.putString("Hidratos", String.valueOf(Hidratos));
+        bundle.putString("Azucares", String.valueOf(Azucares));
+        bundle.putString("Fibra", String.valueOf(Fibra));
+        bundle.putString("Sodio", String.valueOf(Sodio));
+        bundle.putString("Unit", String.valueOf(Unit));
         // set Fragmentclass Arguments
 
         FragmentManager fragmentManager = getSupportFragmentManager();

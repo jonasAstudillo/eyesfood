@@ -130,6 +130,8 @@ public class NewFoodsDialogFragment extends DialogFragment {
         etIngredientes = getView().findViewById(R.id.etNewFoodsIngredients);
 
         userIdFinal = SessionPrefs.get(getContext()).getUserId();
+
+        getView().findViewById(R.id.tvNoInfo).setVisibility(View.GONE);
     }
 
     /** The system calls this only when creating the layout in a dialog. */
