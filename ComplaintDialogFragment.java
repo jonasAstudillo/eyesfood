@@ -259,10 +259,10 @@ public class ComplaintDialogFragment extends DialogFragment {
                     GrasaSat.equals("") && GrasaMono.equals("") && GrasaPoli.equals("") && GrasaTrans.equals("") &&
                     Colesterol.equals("") && Hidratos.equals("") && Azucares.equals("") && Fibra.equals("") && Sodio.equals("")
                     && Ingredientes.equals("")){
-                showEmptySolitudeDialog();
+                showEmptyComplaintDialog();
             }
             else{
-                sendSolitude();
+                sendComplaint();
             }
             return true;
         } else if(id == android.R.id.home){
@@ -273,8 +273,8 @@ public class ComplaintDialogFragment extends DialogFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public void sendSolitude(){
-        Call<Food> call = mEyesFoodApi.newFoodSolitude(new NewFoodBody(userIdFinal, barCode, Nombre, Producto, Marca,
+    public void sendComplaint(){
+        Call<Food> call = mEyesFoodApi.newFoodComplaint(new NewFoodBody(userIdFinal, barCode, Nombre, Producto, Marca,
                 Neto, Porcion, PorcionUnit, Energia, Proteinas, GrasaTotal, GrasaSat, GrasaMono, GrasaPoli, GrasaTrans,
                 Colesterol, Hidratos, Azucares, Fibra, Sodio, Ingredientes, Date));
         call.enqueue(new Callback<Food>() {
@@ -289,7 +289,7 @@ public class ComplaintDialogFragment extends DialogFragment {
 
             @Override
             public void onFailure(Call<Food> call, Throwable t) {
-                Log.d("Falla Retrofit", "Falla en new food solitude");
+                Log.d("Falla Retrofit", "Falla en new food complaint");
                 Log.d("Falla", t.getMessage());
             }
         });
@@ -311,7 +311,7 @@ public class ComplaintDialogFragment extends DialogFragment {
                 .show();
     }
 
-    public void showEmptySolitudeDialog(){
+    public void showEmptyComplaintDialog(){
         new AlertDialog.Builder(getContext())
                 .setIcon(null)
                 .setTitle(getResources().getString(R.string.title_failed_solitude_new_foods))
@@ -319,5 +319,4 @@ public class ComplaintDialogFragment extends DialogFragment {
                 .setPositiveButton(getResources().getString(R.string.ok_dialog), null)
                 .show();
     }
-
 }
