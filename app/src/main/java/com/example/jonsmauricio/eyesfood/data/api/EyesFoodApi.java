@@ -89,4 +89,7 @@ public interface EyesFoodApi {
 
     @POST("foods/new")
     Call<Food> newFoodSolitude(@Body NewFoodBody newFoodBody);
+
+    @POST("foods/complaint")
+    Call<Food> newFoodComplaint(@Body NewFoodBody newFoodBody);
 }

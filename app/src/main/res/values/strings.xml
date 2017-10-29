@@ -6,7 +6,7 @@
 
     <!--TODO: Cuando hice el activity foods me salió que este string ya está hecho-->
     <string name="action_settings">Opciones</string>
-    <string name="action_complaint">Denunciar alimento</string>
+    <string name="action_complaint">Editar alimento</string>
     <string name="action_add_photos">Agregar fotos</string>
 
     <string name="title_activity_login">Iniciar sesión</string>
@@ -131,5 +131,5 @@
     <string name="possitive_dialog">Sí</string>
     <string name="negative_dialog">No</string>
 
-    <string name="title_complaint_foods">Denunciar alimento</string>
+    <string name="title_complaint_foods">Editar alimento</string>
 </resources>
