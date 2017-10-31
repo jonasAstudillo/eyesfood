@@ -132,4 +132,8 @@
     <string name="negative_dialog">No</string>
 
     <string name="title_complaint_foods">Editar alimento</string>
+
+    <string name="upload_images_camera">Desde cámara</string>
+    <string name="upload_images_gallery">Desde galería</string>
+    <string name="title_upload_images">Subir foto</string>
 </resources>

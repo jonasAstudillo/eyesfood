@@ -1,18 +1,25 @@
 package com.example.jonsmauricio.eyesfood.data.api;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
+
 import com.example.jonsmauricio.eyesfood.data.api.model.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 
@@ -28,8 +35,8 @@ public interface EyesFoodApi {
     //Cambiar host por IP de tu PC para dispositivo real.
     // Esta es la ip de usach alumnos
     // public static final String BASE_URL = "http://158.170.214.219/api.eyesfood.cl/v1/";
-    //String BASE_URL = "http://192.168.0.103/api.eyesfood.cl/v1/";
-    String BASE_URL = "https://eyesfood.000webhostapp.com/api.eyesfood.cl/v1/";
+    String BASE_URL = "http://192.168.0.101/api.eyesfood.cl/v1/";
+    //String BASE_URL = "https://eyesfood.000webhostapp.com/api.eyesfood.cl/v1/";
 
     //Esta petición tiene un parámetro del tipo @Body que es un LoginBody llamado loginBody
     @POST("users/login")
@@ -92,4 +99,8 @@ public interface EyesFoodApi {
 
     @POST("foods/complaint")
     Call<Food> newFoodComplaint(@Body NewFoodBody newFoodBody);
+
+    @Multipart
+    @POST("images/2/7802820701210")
+    Call<Food> uploadImage(@Part("myFile") RequestBody imagen);
 }
