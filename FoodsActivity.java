@@ -466,8 +466,10 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_foods_complaint:{
-                Log.d("myTag", "Apreto el botón");
                 showComplaintFoodsDialog();
+            }
+            case R.id.action_foods_add_photos:{
+                showUploadImages();
             }
         }
 
@@ -479,7 +481,6 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void showComplaintFoodsDialog(){
-        //TODO: Poner los otros datos en variables y mandarlos
         Bundle bundle = new Bundle();
         bundle.putString("barCode", CodigoBarras);
         bundle.putString("Nombre", Nombre);
@@ -505,6 +506,24 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         ComplaintDialogFragment newFragment = new ComplaintDialogFragment();
+        newFragment.setArguments(bundle);
+
+        // The device is smaller, so show the fragment fullscreen
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        // For a little polish, specify a transition animation
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        // To make it fullscreen, use the 'content' root view as the container
+        // for the fragment, which is always the root view for the activity
+        transaction.add(android.R.id.content, newFragment).addToBackStack(null).commit();
+    }
+
+    private void showUploadImages(){
+        Bundle bundle = new Bundle();
+        bundle.putString("barCode", CodigoBarras);
+        // set Fragmentclass Arguments
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        UploadImageDialogFragment newFragment = new UploadImageDialogFragment();
         newFragment.setArguments(bundle);
 
         // The device is smaller, so show the fragment fullscreen
