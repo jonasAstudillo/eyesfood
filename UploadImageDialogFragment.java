@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -87,7 +88,7 @@ public class UploadImageDialogFragment extends DialogFragment {
     //Bandera de fotos
     int DCIM = 0;
 
-    CardView fromCamera, fromGallery;
+    Button fromCamera, fromGallery;
     ImageView photoSelected;
 
     String barCode;
@@ -139,8 +140,8 @@ public class UploadImageDialogFragment extends DialogFragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        fromCamera = getView().findViewById(R.id.cvUploadCamera);
-        fromGallery = getView().findViewById(R.id.cvUploadGallery);
+        fromCamera = getView().findViewById(R.id.btUploadCamera);
+        fromGallery = getView().findViewById(R.id.btUploadGallery);
         photoSelected = getView().findViewById(R.id.iv_upload_photo_selected);
 
         fromCamera.setOnClickListener(new View.OnClickListener() {
@@ -200,13 +201,31 @@ public class UploadImageDialogFragment extends DialogFragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Log.d("myTag","estoy aquí1");
             filePath = data.getData();
-            absolutePath = getPath(filePath);
 
+            try {
+                Bitmap thumbnail = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), filePath);
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 10, bytes);
+
+                File destination = new File(Environment.getExternalStorageDirectory(),"temp.jpg");
+                FileOutputStream fo;
+                try {
+                    fo = new FileOutputStream(destination);
+                    fo.write(bytes.toByteArray());
+                    fo.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                absolutePath = destination.getAbsolutePath();
                 Picasso.with(getContext())
                         .load(filePath)
                         .into(photoSelected);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
         else if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             filePath = data.getData();
@@ -262,7 +281,6 @@ public class UploadImageDialogFragment extends DialogFragment {
                 } catch (Exception exc) {
                     Toast.makeText(getContext(), exc.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-                dismiss();
             }
             return true;
         } else if(id == android.R.id.home){
@@ -282,7 +300,7 @@ public class UploadImageDialogFragment extends DialogFragment {
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dismiss();
+                        return;
                     }
 
                 })
