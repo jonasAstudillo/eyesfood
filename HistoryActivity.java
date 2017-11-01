@@ -163,9 +163,11 @@ public class HistoryActivity extends AppCompatActivity
         switch (v.getId()) {
             case R.id.fab:{
 
+                //Si no hay permiso se pide
                 if (ContextCompat.checkSelfPermission(HistoryActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HistoryActivity.this, new String[]{Manifest.permission.CAMERA}, 1);
                 }
+                //Si hay permiso se va al escáner
                 else{
                     Intent intent = new Intent(getApplicationContext(),CaptureActivity.class);
                     intent.setAction("com.google.zxing.client.android.SCAN");
@@ -290,15 +292,35 @@ public class HistoryActivity extends AppCompatActivity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(ActivityCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED){
-            Toast.makeText(this, "Permiso concedido", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getApplicationContext(),CaptureActivity.class);
-            intent.setAction("com.google.zxing.client.android.SCAN");
-            intent.putExtra("SAVE_HISTORY", false);
-            startActivityForResult(intent, 0);
+
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this, permissions[0])){
+            showDialogs();
         }else{
-            Toast.makeText(this, "Necesitas dar permiso para usar la cámara", Toast.LENGTH_SHORT).show();
+            if(ActivityCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "Permiso concedido", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(),CaptureActivity.class);
+                intent.setAction("com.google.zxing.client.android.SCAN");
+                intent.putExtra("SAVE_HISTORY", false);
+                startActivityForResult(intent, 0);
+            } else{
+                showDialogs();
+            }
         }
+    }
+
+    public void showDialogs(){
+        new AlertDialog.Builder(this)
+                .setIcon(null)
+                .setTitle(getResources().getString(R.string.title_foods_permission_rationale_camera))
+                .setMessage(getResources().getString(R.string.message_history_permission_rationale_camera))
+                .setPositiveButton(getResources().getString(R.string.ok_dialog), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        return;
+                    }
+
+                })
+                .show();
     }
 
     //Procesa lo obtenido por el escáner

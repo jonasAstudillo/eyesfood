@@ -1,16 +1,22 @@
 package com.example.jonsmauricio.eyesfood.ui;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -41,11 +47,15 @@ import com.example.jonsmauricio.eyesfood.data.api.model.NewFoodBody;
 import com.example.jonsmauricio.eyesfood.data.api.model.ShortFood;
 import com.example.jonsmauricio.eyesfood.data.api.model.User;
 import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
+import com.google.zxing.client.android.CaptureActivity;
+import com.squareup.picasso.Picasso;
 
 import net.gotev.uploadservice.MultipartUploadRequest;
 import net.gotev.uploadservice.UploadNotificationConfig;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -58,6 +68,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.app.Activity.RESULT_OK;
+import static com.example.jonsmauricio.eyesfood.R.id.barcode_image_view;
 import static com.example.jonsmauricio.eyesfood.R.id.imageView;
 
 public class UploadImageDialogFragment extends DialogFragment {
@@ -66,9 +77,15 @@ public class UploadImageDialogFragment extends DialogFragment {
 
     //Image request code
     private int PICK_IMAGE_REQUEST = 1;
-    private Uri filePath;
+    private int CAMERA_REQUEST = 2;
+
+    private Uri filePath = null;
     //Bitmap to get image from gallery
     private Bitmap bitmap;
+    String absolutePath;
+    String path;
+    //Bandera de fotos
+    int DCIM = 0;
 
     CardView fromCamera, fromGallery;
     ImageView photoSelected;
@@ -81,6 +98,8 @@ public class UploadImageDialogFragment extends DialogFragment {
     //Obtengo token e id de Usuario
     private String userIdFinal;
 
+    private String urlUpload;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -91,6 +110,8 @@ public class UploadImageDialogFragment extends DialogFragment {
 
         Toolbar toolbar = view.findViewById(R.id.toolbarUploadImages);
         toolbar.setTitle(getResources().getString(R.string.title_upload_images));
+
+        barCode = getArguments().getString("barCode");
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
@@ -125,16 +146,18 @@ public class UploadImageDialogFragment extends DialogFragment {
         fromCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent, CAMERA_REQUEST);
             }
         });
         fromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showFileChooser();
+                    showFileChooser();
             }
         });
-
         userIdFinal = SessionPrefs.get(getContext()).getUserId();
+        urlUpload = EyesFoodApi.BASE_URL + "images/" + userIdFinal + "/" + barCode;
     }
 
     /** The system calls this only when creating the layout in a dialog. */
@@ -177,15 +200,36 @@ public class UploadImageDialogFragment extends DialogFragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Log.d("myTag","estoy aquí1");
             filePath = data.getData();
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), filePath);
-                Log.d("myTag",String.valueOf(filePath));
-                photoSelected.setImageBitmap(bitmap);
+            absolutePath = getPath(filePath);
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                Picasso.with(getContext())
+                        .load(filePath)
+                        .into(photoSelected);
+        }
+        else if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+            filePath = data.getData();
+            absolutePath = getPath(filePath);
+
+                Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+                File destination = new File(Environment.getExternalStorageDirectory(),"temp.jpg");
+                FileOutputStream fo;
+                try {
+                    fo = new FileOutputStream(destination);
+                    fo.write(bytes.toByteArray());
+                    fo.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                absolutePath = destination.getAbsolutePath();
+            Picasso.with(getContext())
+                    .load(filePath)
+                    .into(photoSelected);
         }
     }
 
@@ -197,24 +241,29 @@ public class UploadImageDialogFragment extends DialogFragment {
         int id = item.getItemId();
 
         if (id == R.id.sendFood) {
-            //getting the actual path of the image
-            String path = getPath(filePath);
-
-            //Uploading code
-            try {
-                String uploadId = UUID.randomUUID().toString();
-
-                //Creating a multi part request
-                new MultipartUploadRequest(getContext(), uploadId, "http://192.168.0.101/api.eyesfood.cl/v1/images/2/7802820701210/")
-                        .addFileToUpload(path, "myFile") //Adding file
-                        .setNotificationConfig(new UploadNotificationConfig())
-                        .setMaxRetries(2)
-                        .startUpload(); //Starting the upload
-
-            } catch (Exception exc) {
-                Toast.makeText(getContext(), exc.getMessage(), Toast.LENGTH_SHORT).show();
+            if(filePath == null){
+                showEmptyUploadDialog();
             }
-            dismiss();
+            else {
+                //Uploading code
+                try {
+                    String uploadId = UUID.randomUUID().toString();
+                        //Creating a multi part request
+                        new MultipartUploadRequest(getContext(), uploadId, urlUpload)
+                                .addFileToUpload(absolutePath, "myFile") //Adding file
+                                .setNotificationConfig(new UploadNotificationConfig()
+                                        .setCompletedMessage(getResources().getString(R.string.body_notification_upload_images))
+                                        .setTitle(getResources().getString(R.string.title_notification_upload_images)))
+                                .setMaxRetries(2)
+                                .startUpload(); //Starting the upload
+
+                        showSuccesDialog();
+
+                } catch (Exception exc) {
+                    Toast.makeText(getContext(), exc.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                dismiss();
+            }
             return true;
         } else if(id == android.R.id.home){
             dismiss();
@@ -222,46 +271,6 @@ public class UploadImageDialogFragment extends DialogFragment {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    //method to get the file path from uri
-    public String getPath(Uri uri) {
-        Cursor cursor = getContext().getContentResolver().query(uri, null, null, null, null);
-        cursor.moveToFirst();
-        String document_id = cursor.getString(0);
-        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
-        cursor.close();
-
-        cursor = getContext().getContentResolver().query(
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
-        cursor.moveToFirst();
-        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        cursor.close();
-
-        return path;
-    }
-
-    /*public void sendSolitude(){
-        Call<Food> call = mEyesFoodApi.newFoodSolitude(new NewFoodBody(userIdFinal, barCode, Nombre, Producto, Marca,
-                Neto, Porcion, PorcionUnit, Energia, Proteinas, GrasaTotal, GrasaSat, GrasaMono, GrasaPoli, GrasaTrans,
-                Colesterol, Hidratos, Azucares, Fibra, Sodio, Ingredientes, Date));
-        call.enqueue(new Callback<Food>() {
-            @Override
-            public void onResponse(Call<Food> call, Response<Food> response) {
-                if (!response.isSuccessful()) {
-
-                    return;
-                }
-                showSuccesDialog();
-            }
-
-            @Override
-            public void onFailure(Call<Food> call, Throwable t) {
-                Log.d("Falla Retrofit", "Falla en new food solitude");
-                Log.d("Falla", t.getMessage());
-            }
-        });
     }
 
     public void showSuccesDialog(){
@@ -280,13 +289,29 @@ public class UploadImageDialogFragment extends DialogFragment {
                 .show();
     }
 
-    public void showEmptySolitudeDialog(){
+    public void showEmptyUploadDialog(){
         new AlertDialog.Builder(getContext())
                 .setIcon(null)
                 .setTitle(getResources().getString(R.string.title_failed_solitude_new_foods))
-                .setMessage(getResources().getString(R.string.message_failed_solitude_new_foods))
+                .setMessage(getResources().getString(R.string.message_failed_solitude_upload))
                 .setPositiveButton(getResources().getString(R.string.ok_dialog), null)
                 .show();
-    }*/
+    }
+    //method to get the file path from uri
+    public String getPath(Uri uri) {
+        Cursor cursor = getContext().getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
 
+        cursor = getContext().getContentResolver().query(
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+        cursor.moveToFirst();
+        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        cursor.close();
+
+        return path;
+    }
 }

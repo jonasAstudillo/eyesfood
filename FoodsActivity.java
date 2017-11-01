@@ -1,11 +1,17 @@
 package com.example.jonsmauricio.eyesfood.ui;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -58,7 +64,6 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     String Porcion, PorcionUnit, Energia, Proteinas, GrasaTotal, GrasaSat, GrasaMono, GrasaPoli, GrasaTrans,
             Colesterol, Hidratos, Azucares, Fibra, Sodio, Unit;
 
-
     int Neto;
 
     float Peligro;
@@ -74,6 +79,10 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
     Retrofit mRestAdapter;
     private EyesFoodApi mEyesFoodApi;
+
+    //Permissions
+    private static final int PERMISSION_CODE = 123;
+    String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
 
     //IP de usach alumnos:
     //private final String baseFotoAlimento = "http://158.170.214.219/api.eyesfood.cl/v1/img/food/";
@@ -466,21 +475,91 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_foods_complaint:{
-                showComplaintFoodsDialog();
+                showSelectedDialog(0);
+                break;
             }
             case R.id.action_foods_add_photos:{
-                showUploadImages();
+                if (ContextCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, permissions[1]) == PackageManager.PERMISSION_GRANTED) {
+                    showSelectedDialog(1);
+                }
+                else{
+                    if (ContextCompat.checkSelfPermission(this, permissions[0]) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, permissions, PERMISSION_CODE);
+                    }
+                    if (ContextCompat.checkSelfPermission(this, permissions[1]) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, permissions, PERMISSION_CODE);
+                    }
+                    if (ContextCompat.checkSelfPermission(this, permissions[2]) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, permissions, PERMISSION_CODE);
+                    }
+                }
+                break;
             }
         }
 
         return(super.onOptionsItemSelected(item));
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        int i = 0;
+        int permisos = 0;
+        for(String permission: permissions){
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission)){
+                showDialogs(i);
+            }else{
+                if(ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED){
+                    permisos++;
+                    if(permisos==3){
+                        Toast.makeText(this, getResources().getString(R.string.success_permission_add_photos), Toast.LENGTH_LONG).show();
+                    }
+                } else{
+                    showDialogs(i);
+                }
+            }
+            i++;
+        }
+    }
+
+    public void showDialogs(int seleccion){
+        if(seleccion == 0 || seleccion == 1){
+            new AlertDialog.Builder(this)
+                    .setIcon(null)
+                    .setTitle(getResources().getString(R.string.title_foods_permission_rationale_storage))
+                    .setMessage(getResources().getString(R.string.message_foods_permission_rationale_storage))
+                    .setPositiveButton(getResources().getString(R.string.ok_dialog), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            return;
+                        }
+
+                    })
+                    .show();
+        }
+        else{
+            new AlertDialog.Builder(this)
+                    .setIcon(null)
+                    .setTitle(getResources().getString(R.string.title_foods_permission_rationale_camera))
+                    .setMessage(getResources().getString(R.string.message_foods_permission_rationale_camera))
+                    .setPositiveButton(getResources().getString(R.string.ok_dialog), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            return;
+                        }
+
+                    })
+                    .show();
+        }
+
+    }
+
     public void hacerToast(String contenido){
         Toast.makeText(this, contenido, Toast.LENGTH_LONG).show();
     }
 
-    private void showComplaintFoodsDialog(){
+    private void showSelectedDialog(int seleccion){
         Bundle bundle = new Bundle();
         bundle.putString("barCode", CodigoBarras);
         bundle.putString("Nombre", Nombre);
@@ -505,8 +584,11 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         // set Fragmentclass Arguments
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        ComplaintDialogFragment newFragment = new ComplaintDialogFragment();
-        newFragment.setArguments(bundle);
+        ComplaintDialogFragment newFragmentComplaint = new ComplaintDialogFragment();
+        UploadImageDialogFragment newFragmentUpload = new UploadImageDialogFragment();
+        newFragmentComplaint.setArguments(bundle);
+        newFragmentUpload.setArguments(bundle);
+
 
         // The device is smaller, so show the fragment fullscreen
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -514,10 +596,20 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         // To make it fullscreen, use the 'content' root view as the container
         // for the fragment, which is always the root view for the activity
-        transaction.add(android.R.id.content, newFragment).addToBackStack(null).commit();
+        //transaction.add(android.R.id.content, newFragment).addToBackStack(null).commit();
+        transaction.add(android.R.id.content, newFragmentUpload).addToBackStack(null);
+        transaction.add(android.R.id.content, newFragmentComplaint).addToBackStack(null);
+
+        if(seleccion == 0){
+            transaction.replace(android.R.id.content, newFragmentComplaint);
+        }
+        else{
+            transaction.replace(android.R.id.content, newFragmentUpload);
+        }
+        transaction.commit();
     }
 
-    private void showUploadImages(){
+    /*private void showUploadImages(){
         Bundle bundle = new Bundle();
         bundle.putString("barCode", CodigoBarras);
         // set Fragmentclass Arguments
@@ -532,6 +624,6 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         // To make it fullscreen, use the 'content' root view as the container
         // for the fragment, which is always the root view for the activity
-        transaction.add(android.R.id.content, newFragment).addToBackStack(null).commit();
-    }
+        transaction.replace(android.R.id.content, newFragment).addToBackStack(null).commit();
+    }*/
 }
