@@ -136,4 +136,17 @@
     <string name="upload_images_camera">Desde cámara</string>
     <string name="upload_images_gallery">Desde galería</string>
     <string name="title_upload_images">Subir foto</string>
+
+    <string name="title_notification_upload_images">Imagen subida</string>
+    <string name="body_notification_upload_images">Tu imagen se ha subido correctamente</string>
+
+    <string name="message_failed_solitude_upload">Parece que no has seleccionado ninguna foto, por favor selecciona una</string>
+
+    <string name="title_foods_permission_rationale_storage">Almacenamiento</string>
+    <string name="message_foods_permission_rationale_storage">Es necesario dar permiso de almacenamiento para agregar fotos. Si seleccionaste no volver a preguntar, debes dar manualmente el permiso en Ajustes -> Aplicaciones -> Administrador de aplicaciones -> EyesFood -> Accesos</string>
+    <string name="title_foods_permission_rationale_camera">Cámara</string>
+    <string name="message_foods_permission_rationale_camera">Es necesario dar permiso de acceso a la cámara para agregar fotos. Si seleccionaste no volver a preguntar, debes dar manualmente el permiso en Ajustes -> Aplicaciones -> Administrador de aplicaciones -> EyesFood -> Accesos</string>
+    <string name="success_permission_add_photos">Ahora puedes agregar fotos</string>
+
+    <string name="message_history_permission_rationale_camera">Es necesario dar permiso de acceso a la cámara para consultar alimentos. Si seleccionaste no volver a preguntar, debes dar manualmente el permiso en Ajustes -> Aplicaciones -> Administrador de aplicaciones -> EyesFood -> Accesos</string>
 </resources>
