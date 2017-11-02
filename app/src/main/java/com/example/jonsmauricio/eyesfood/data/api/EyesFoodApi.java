@@ -1,27 +1,17 @@
 package com.example.jonsmauricio.eyesfood.data.api;
 
-import android.graphics.Bitmap;
-import android.net.Uri;
-
 import com.example.jonsmauricio.eyesfood.data.api.model.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
 import retrofit2.http.Headers;
-import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
-import retrofit2.http.Part;
 import retrofit2.http.Path;
-import retrofit2.http.QueryMap;
 
 /*
     API de Eyes Food
@@ -94,13 +84,16 @@ public interface EyesFoodApi {
     @GET("additives/{eCode}")
     Call<List<Additive>> getAdditive(@Path("eCode") String eCode);
 
+    //Inserta una solicitud de nuevo alimento
     @POST("foods/new")
     Call<Food> newFoodSolitude(@Body NewFoodBody newFoodBody);
 
+    //Inserta una solicitud de edición de alimento
     @POST("foods/complaint")
     Call<Food> newFoodComplaint(@Body NewFoodBody newFoodBody);
 
-    @Multipart
-    @POST("images/2/7802820701210")
-    Call<Food> uploadImage(@Part("myFile") RequestBody imagen);
+    //Retorna las imágenes autorizadas de un alimento
+    @GET("images/{barcode}")
+    Call<ArrayList<FoodImage>> getImages(@Path("barcode") String barcode);
+
 }

@@ -354,14 +354,21 @@ android:paddingTop="24dp">
         android:id="@+id/btFoodsAdditives"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Aditivos"
+        android:text="@string/foods_button_additives"
         style="@style/RaisedButton"/>
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/btFoodsRecommendations"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Recomendaciones"
+        android:text="@string/foods_button_recommendations"
+        style="@style/RaisedButton"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btFoodsImages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/foods_button_images"
         style="@style/RaisedButton"/>
 
 </LinearLayout>
