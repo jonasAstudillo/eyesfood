@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
 import com.example.jonsmauricio.eyesfood.data.api.model.Food;
+import com.example.jonsmauricio.eyesfood.data.api.model.FoodImage;
 import com.example.jonsmauricio.eyesfood.data.api.model.Ingredient;
 import com.example.jonsmauricio.eyesfood.data.api.model.Recommendation;
 import com.squareup.picasso.Picasso;
@@ -70,11 +71,12 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     RatingBar infoGeneralRating;
 
     //Para los botonos
-    Button additives, recommendations;
+    Button additives, recommendations, images;
 
     private List<Ingredient> listaIngredientes;
     private List<Ingredient> listaAditivos;
     private List<Recommendation> listaRecomendaciones;
+    private List<FoodImage> listaImagenes;
     ImageView ivFoodPhoto;
 
     Retrofit mRestAdapter;
@@ -141,9 +143,11 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         //Para los botones
         additives = (Button) findViewById(R.id.btFoodsAdditives);
         recommendations = (Button) findViewById(R.id.btFoodsRecommendations);
+        images = (Button) findViewById(R.id.btFoodsImages);
 
         additives.setOnClickListener(this);
         recommendations.setOnClickListener(this);
+        images.setOnClickListener(this);
 
         ivFoodPhoto = (ImageView) findViewById(R.id.image_paralax);
         final CollapsingToolbarLayout collapser = (CollapsingToolbarLayout) findViewById(R.id.collapser);
@@ -191,6 +195,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             loadFoods(CodigoBarras);
             loadIngredients(CodigoBarras);
             loadRecommendations(CodigoBarras);
+            loadImages(CodigoBarras);
         }
     }
 
@@ -433,6 +438,27 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
+    //Carga las recomendaciones del alimento
+    public void loadImages(String barcode) {
+        Call<ArrayList<FoodImage>> call = mEyesFoodApi.getImages(barcode);
+        call.enqueue(new Callback<ArrayList<FoodImage>>() {
+            @Override
+            public void onResponse(Call<ArrayList<FoodImage>> call,
+                                   Response<ArrayList<FoodImage>> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                listaImagenes = response.body();
+                String cantidadImagenes = String.valueOf(listaImagenes.size());
+                images.setText("Imágenes ("+cantidadImagenes+")");
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<FoodImage>> call, Throwable t) {
+            }
+        });
+    }
+
     //Carga el menú a la toolbar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -465,6 +491,18 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
                 }
                 else{
                     hacerToast(getResources().getString(R.string.dialog_no_recommendations));
+                }
+                break;
+            }
+            case R.id.btFoodsImages: {
+                if(listaImagenes.size()>0) {
+                    Intent intent = new Intent(this, ImagesActivity.class);
+                    intent.putExtra("CodigoBarras", CodigoBarras);
+                    intent.putExtra("Nombre", Nombre);
+                    startActivity(intent);
+                }
+                else{
+                    hacerToast(getResources().getString(R.string.dialog_no_images));
                 }
                 break;
             }

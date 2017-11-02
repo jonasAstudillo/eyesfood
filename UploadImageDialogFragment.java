@@ -76,7 +76,7 @@ public class UploadImageDialogFragment extends DialogFragment {
     /** The system calls this to get the DialogFragment's layout, regardless
      of whether it's being displayed as a dialog or an embedded fragment. */
 
-    //Image request code
+    //FoodImage request code
     private int PICK_IMAGE_REQUEST = 1;
     private int CAMERA_REQUEST = 2;
 
