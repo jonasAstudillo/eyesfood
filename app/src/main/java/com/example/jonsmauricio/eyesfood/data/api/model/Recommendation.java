@@ -2,11 +2,13 @@ package com.example.jonsmauricio.eyesfood.data.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /*
     Define un objeto recomendación
     Clase utilizada para mostrar las recomendaciones de alimentos
 */
-public class Recommendation {
+public class Recommendation implements Serializable{
     @SerializedName("recomendacion")
     private String recommendation;
 

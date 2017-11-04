@@ -2,11 +2,13 @@ package com.example.jonsmauricio.eyesfood.data.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /*
     Define un objeto alimento
     Clase utilizada para mostrar la información detallada de los alimentos
 */
-public class Food {
+public class Food implements Serializable{
 
     @SerializedName("codigoBarras")
     private String barCode;
@@ -201,5 +203,10 @@ public class Food {
 
     public String getOfficialPhoto() {
         return officialPhoto;
+    }
+
+    @Override
+    public String toString(){
+        return name;
     }
 }

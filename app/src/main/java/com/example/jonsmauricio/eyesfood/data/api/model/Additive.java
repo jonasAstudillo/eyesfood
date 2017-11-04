@@ -2,11 +2,13 @@ package com.example.jonsmauricio.eyesfood.data.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /*
     Define un objeto aditivo
     Clase utilizada para mostrar la información detallada de los aditivos
 */
-public class Additive {
+public class Additive implements Serializable{
     @SerializedName("codigoE")
     private String eCode;
     @SerializedName("gradoPeligro")
@@ -68,4 +70,8 @@ public class Additive {
         return secondaryEffects;
     }
 
+    @Override
+    public String toString(){
+        return additive;
+    }
 }

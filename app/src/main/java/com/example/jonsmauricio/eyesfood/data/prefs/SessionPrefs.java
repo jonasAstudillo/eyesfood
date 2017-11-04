@@ -85,11 +85,11 @@ public class SessionPrefs {
         editor.apply();
     }
 
-    public String getToken(){
-        return mPrefs.getString(PREF_USER_TOKEN, null);
-    }
     public String getUserId(){
         return mPrefs.getString(PREF_USER_ID, null);
+    }
+    public String getUserPhoto(){
+        return mPrefs.getString(PREF_USER_PHOTO, null);
     }
 
 }

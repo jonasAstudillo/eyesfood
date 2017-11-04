@@ -2,11 +2,13 @@ package com.example.jonsmauricio.eyesfood.data.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by JonásMauricio on 02-11-2017.
  */
 
-public class FoodImage {
+public class FoodImage implements Serializable{
     @SerializedName("idFotoAlimento")
     private long id;
     @SerializedName("idUsuario")

@@ -124,6 +124,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.jonsmauricio.eyesfood.ui.ImagesActivity" />
         </activity>
+        <activity
+            android:name=".ui.CommentsActivity"
+            android:label="@string/title_activity_comments"
+            android:parentActivityName=".ui.FoodsActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.jonsmauricio.eyesfood.ui.FoodsActivity" />
+        </activity>
     </application>
 
 </manifest>

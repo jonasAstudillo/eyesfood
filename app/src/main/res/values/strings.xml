@@ -158,4 +158,8 @@
     <string name="foods_button_recommendations">Recomendaciones</string>
     <string name="foods_button_images">Imágenes</string>
     <string name="title_activity_images_detail">ImagesDetailActivity</string>
+    <string name="title_activity_comments">CommentsActivity</string>
+
+    <string name="hint_comments">Escribe un comentario...</string>
+    <string name="comments_empty_state">El alimento no tiene comentarios ¡Se el primero!</string>
 </resources>
