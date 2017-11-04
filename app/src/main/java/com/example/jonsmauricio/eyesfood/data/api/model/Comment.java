@@ -18,13 +18,13 @@ public class Comment implements Serializable {
     @SerializedName("FotoUsuario")
     private String userPhoto;
     @SerializedName("Reputacion")
-    private String reputation;
+    private float reputation;
     @SerializedName("comentario")
     private String comment;
     @SerializedName("fecha")
     private String date;
 
-    public Comment(String id, String userName, String userLastName, String userPhoto, String reputation, String comment,
+    public Comment(String id, String userName, String userLastName, String userPhoto, float reputation, String comment,
                    String date) {
         this.id = id;
         this.userName = userName;
@@ -51,7 +51,7 @@ public class Comment implements Serializable {
         return userPhoto;
     }
 
-    public String getReputation() {
+    public float getReputation() {
         return reputation;
     }
 
