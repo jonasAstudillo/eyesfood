@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
         TextView name = convertView.findViewById(R.id.tvCommentsName);
         TextView comment = convertView.findViewById(R.id.tvCommentsComment);
         TextView date = convertView.findViewById(R.id.tvCommentsDate);
+        RatingBar ratingBar = convertView.findViewById(R.id.rbCommentsRating);
 
         // Comentario actual.
         Comment currentComment = getItem(position);
@@ -55,6 +57,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
         // Setup.
         Picasso.with(getContext()).load(baseFotoUsuario + currentComment.getUserPhoto()).resize(800,800).into(avatar);
         name.setText(currentComment.getUserName() + " " + currentComment.getUserLastName());
+        ratingBar.setRating(currentComment.getReputation());
         comment.setText(currentComment.getComment());
         date.setText(currentComment.getDate());
 
