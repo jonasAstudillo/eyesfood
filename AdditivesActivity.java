@@ -13,7 +13,10 @@ import android.view.MenuItem;
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
 import com.example.jonsmauricio.eyesfood.data.api.model.Additive;
+import com.example.jonsmauricio.eyesfood.data.api.model.Food;
+import com.example.jonsmauricio.eyesfood.data.api.model.Recommendation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -29,12 +32,8 @@ public class AdditivesActivity extends AppCompatActivity {
     private AdditivesAdapter adapter;
     private RecyclerView.LayoutManager lManager;
 
-    Retrofit mRestAdapter;
-    EyesFoodApi mEyesFoodApi;
-
-    private String CodigoBarras;
-    private String Nombre;
     private List<Additive> listaAditivos;
+    private Food Alimento;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,52 +44,22 @@ public class AdditivesActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Crear conexión al servicio REST
-        mRestAdapter = new Retrofit.Builder()
-                .baseUrl(EyesFoodApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        // Crear conexión a la API de EyesFood
-        mEyesFoodApi = mRestAdapter.create(EyesFoodApi.class);
-
         Intent i = getIntent();
         Bundle b = i.getExtras();
 
+        Bundle args = i.getBundleExtra("BUNDLE");
+        listaAditivos = (List<Additive>) args.getSerializable("Aditivos");
+
         if(b != null){
-            CodigoBarras = (String) b.get("CodigoBarras");
-            Nombre = (String) b.get("Nombre");
-            setTitle(Nombre);
+            Alimento = (Food) b.get("Alimento");
+            setTitle(Alimento.getName());
+            showAdditives(listaAditivos);
         }
-
-        loadAdditives(CodigoBarras);
-        Log.d("myTag", "en on create");
-    }
-
-    //Carga la lista de aditivos
-    public void loadAdditives(String barcode){
-        Call<List<Additive>> call = mEyesFoodApi.getFullAdditives(barcode);
-        call.enqueue(new Callback<List<Additive>>() {
-            @Override
-            public void onResponse(Call<List<Additive>> call,
-                                   Response<List<Additive>> response) {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                listaAditivos = response.body();
-                showAdditives(listaAditivos);
-            }
-
-            @Override
-            public void onFailure(Call<List<Additive>> call, Throwable t) {
-                Log.d("Falla", "Falla en la llamada de aditivos: loadAdditives");
-            }
-        });
     }
 
     //Muestra los aditivos
     //historial: Lista de aditivos del alimento
-    public void showAdditives(List<Additive> listaAditivos) {
+    public void showAdditives(List<Additive> lista) {
 
         // Obtener el Recycler
         recycler = (RecyclerView) findViewById(R.id.additivesRecycler);
@@ -101,7 +70,7 @@ public class AdditivesActivity extends AppCompatActivity {
         recycler.setLayoutManager(lManager);
 
         //Crear un nuevo adaptador
-        adapter = new AdditivesAdapter(listaAditivos);
+        adapter = new AdditivesAdapter(lista);
         recycler.setAdapter(adapter);
     }
 
@@ -117,10 +86,9 @@ public class AdditivesActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 Intent i = new Intent(this, FoodsActivity.class);
-                i.putExtra("CodigoBarras", CodigoBarras);
-                i.putExtra("Nombre", Nombre);
+                i.putExtra("Alimento", Alimento);
                 startActivity(i);
-                return true;
+                return(true);
         }
 
         return(super.onOptionsItemSelected(item));

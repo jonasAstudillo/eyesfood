@@ -4,15 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
+import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.FoodImage;
+import com.example.jonsmauricio.eyesfood.data.api.model.Recommendation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,14 +25,14 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ImagesActivity extends AppCompatActivity {
+public class ImagesActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
     Retrofit mRestAdapter;
     private EyesFoodApi mEyesFoodApi;
 
     private ArrayList<FoodImage> listaImagenes = new ArrayList<FoodImage>();
+    private Food Alimento;
     private GridView gridView;
-    private String Nombre, CodigoBarras;
     private ImagesAdapter adapter;
 
 
@@ -41,48 +46,19 @@ public class ImagesActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         gridView = (GridView) findViewById(R.id.gvImages);
-
-        // Crear conexión al servicio REST
-        mRestAdapter = new Retrofit.Builder()
-                .baseUrl(EyesFoodApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        // Crear conexión a la API de EyesFood
-        mEyesFoodApi = mRestAdapter.create(EyesFoodApi.class);
+        gridView.setOnItemClickListener(this);
 
         Intent i = getIntent();
         Bundle b = i.getExtras();
 
-        //Recibe los datos enviados por el scanner o lista
-        if(b!=null)
-        {
-            Nombre = (String) b.get("Nombre");
-            setTitle(Nombre);
-            CodigoBarras = (String) b.get("CodigoBarras");
-            loadImages(CodigoBarras);
+        Bundle args = i.getBundleExtra("BUNDLE");
+        listaImagenes = (ArrayList<FoodImage>) args.getSerializable("Imagenes");
+
+        if(b != null){
+            Alimento = (Food) b.get("Alimento");
+            setTitle(Alimento.getName());
+            showImages(listaImagenes);
         }
-    }
-
-    //Carga las recomendaciones del alimento
-    public void loadImages(String barcode) {
-        Call<ArrayList<FoodImage>> call = mEyesFoodApi.getImages(barcode);
-        call.enqueue(new Callback<ArrayList<FoodImage>>() {
-            @Override
-            public void onResponse(Call<ArrayList<FoodImage>> call,
-                                   Response<ArrayList<FoodImage>> response) {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                listaImagenes = response.body();
-                showImages(listaImagenes);
-
-            }
-
-            @Override
-            public void onFailure(Call<ArrayList<FoodImage>> call, Throwable t) {
-            }
-        });
     }
 
     //Muestra el historial
@@ -91,5 +67,30 @@ public class ImagesActivity extends AppCompatActivity {
         adapter = new ImagesAdapter(getApplicationContext(),imagenes);
         gridView.setAdapter(adapter);
         //adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        Intent intent = new Intent(this, ImagesDetailActivity.class);
+        Bundle args = new Bundle();
+        args.putSerializable("Imagenes",listaImagenes);
+        intent.putExtra("BUNDLE",args);
+
+        intent.putExtra("Alimento", Alimento);
+        intent.putExtra("indice",i);
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent i = new Intent(this, FoodsActivity.class);
+                i.putExtra("Alimento", Alimento);
+                startActivity(i);
+                return(true);
+        }
+
+        return(super.onOptionsItemSelected(item));
     }
 }

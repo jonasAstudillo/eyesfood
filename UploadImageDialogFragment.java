@@ -81,16 +81,12 @@ public class UploadImageDialogFragment extends DialogFragment {
     private int CAMERA_REQUEST = 2;
 
     private Uri filePath = null;
-    //Bitmap to get image from gallery
-    private Bitmap bitmap;
     String absolutePath;
-    String path;
-    //Bandera de fotos
-    int DCIM = 0;
 
     Button fromCamera, fromGallery;
     ImageView photoSelected;
 
+    Food Alimento;
     String barCode;
 
     Retrofit mRestAdapter;
@@ -112,7 +108,8 @@ public class UploadImageDialogFragment extends DialogFragment {
         Toolbar toolbar = view.findViewById(R.id.toolbarUploadImages);
         toolbar.setTitle(getResources().getString(R.string.title_upload_images));
 
-        barCode = getArguments().getString("barCode");
+        Alimento = (Food) getArguments().getSerializable("Alimento");
+        barCode = Alimento.getBarCode();
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 

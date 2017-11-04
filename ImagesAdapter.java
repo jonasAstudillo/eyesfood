@@ -1,6 +1,7 @@
 package com.example.jonsmauricio.eyesfood.ui;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,10 +62,9 @@ public class ImagesAdapter extends BaseAdapter {
         final FoodImage item = getItem(position);
         Picasso.with(imagenAlimento.getContext())
                 .load(baseFotoAlimento + item.getPath())
+                .resize(800,800)
                 .into(imagenAlimento);
         footer.setText(item.getFecha());
-
-        Log.d("myTag",baseFotoAlimento + item.getPath());
 
         return view;
     }

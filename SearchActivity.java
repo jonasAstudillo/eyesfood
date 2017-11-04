@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
 import com.example.jonsmauricio.eyesfood.data.api.model.Additive;
+import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.SearchResult;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
@@ -39,12 +40,12 @@ public class SearchActivity extends AppCompatActivity {
     private String query;
     Retrofit mRestAdapter;
     EyesFoodApi mEyesFoodApi;
-    private List<SearchResult> resultadoAlimentos;
-    private List<SearchResult> resultadoAditivos;
+    private List<Food> resultadoAlimentos;
+    private List<Additive> resultadoAditivos;
     private ListView resultFoods;
     private ListView resultAdditives;
-    private ArrayAdapter<SearchResult> adaptadorFoods;
-    private ArrayAdapter<SearchResult> adaptadorAdditives;
+    private ArrayAdapter<Food> adaptadorFoods;
+    private ArrayAdapter<Additive> adaptadorAdditives;
     private View searchProgress;
     TextView searchProgressText;
     TextView searchEmptyState;
@@ -52,7 +53,6 @@ public class SearchActivity extends AppCompatActivity {
     TextView searchAdditivesHeader;
     boolean noFoods;
     boolean noAdditives;
-    boolean emptyState;
 
 
     @Override
@@ -85,10 +85,9 @@ public class SearchActivity extends AppCompatActivity {
         resultFoods.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                SearchResult currentSearch = adaptadorFoods.getItem(position);
+                Food currentSearch = adaptadorFoods.getItem(position);
                 Intent i = new Intent(getApplicationContext(), FoodsActivity.class);
-                i.putExtra("CodigoBarras",currentSearch.getCodigo());
-                i.putExtra("Nombre",currentSearch.getNombre());
+                i.putExtra("Alimento", currentSearch);
                 startActivity(i);
             }
         });
@@ -96,11 +95,9 @@ public class SearchActivity extends AppCompatActivity {
         resultAdditives.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                SearchResult currentSearch = adaptadorAdditives.getItem(position);
+                Additive currentSearch = adaptadorAdditives.getItem(position);
                 Intent i = new Intent(getApplicationContext(), AdditiveActivity.class);
-                i.putExtra("CodigoE",currentSearch.getCodigo());
-                Log.d("myTag", currentSearch.getCodigo() + currentSearch.getNombre());
-                i.putExtra("Nombre",currentSearch.getNombre());
+                i.putExtra("Aditivo", currentSearch);
                 startActivity(i);
             }
         });
@@ -118,11 +115,11 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     public void makeQueryFoods(String query){
-        Call<List<SearchResult>> call = mEyesFoodApi.getFoodsQuery(query);
-        call.enqueue(new Callback<List<SearchResult>>() {
+        Call<List<Food>> call = mEyesFoodApi.getFoodsQuery(query);
+        call.enqueue(new Callback<List<Food>>() {
             @Override
-            public void onResponse(Call<List<SearchResult>> call,
-                                   Response<List<SearchResult>> response) {
+            public void onResponse(Call<List<Food>> call,
+                                   Response<List<Food>> response) {
                 if (!response.isSuccessful()) {
                     return;
                 }
@@ -131,18 +128,18 @@ public class SearchActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<SearchResult>> call, Throwable t) {
+            public void onFailure(Call<List<Food>> call, Throwable t) {
                 Log.d("Falla", "Falla en la llamada de aditivos: loadAdditives");
             }
         });
     }
 
     public void makeQueryAdditives(String query){
-        Call<List<SearchResult>> call = mEyesFoodApi.getAdditivesQuery(query);
-        call.enqueue(new Callback<List<SearchResult>>() {
+        Call<List<Additive>> call = mEyesFoodApi.getAdditivesQuery(query);
+        call.enqueue(new Callback<List<Additive>>() {
             @Override
-            public void onResponse(Call<List<SearchResult>> call,
-                                   Response<List<SearchResult>> response) {
+            public void onResponse(Call<List<Additive>> call,
+                                   Response<List<Additive>> response) {
                 if (!response.isSuccessful()) {
                     return;
                 }
@@ -151,13 +148,13 @@ public class SearchActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<SearchResult>> call, Throwable t) {
+            public void onFailure(Call<List<Additive>> call, Throwable t) {
                 Log.d("Falla", "Falla en la llamada de aditivos: loadAdditives");
             }
         });
     }
 
-    public void showListFoods(List<SearchResult> lista){
+    public void showListFoods(List<Food> lista){
         int tamanoLista = lista.size();
         if(tamanoLista > 0) {
             noFoods = false;
@@ -172,7 +169,7 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
-    public void showListAdditives(List<SearchResult> lista){
+    public void showListAdditives(List<Additive> lista){
         int tamanoLista = lista.size();
         if(tamanoLista > 0) {
             noAdditives = false;

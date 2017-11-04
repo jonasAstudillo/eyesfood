@@ -5,8 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -26,12 +26,15 @@ import android.widget.Toast;
 
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
+import com.example.jonsmauricio.eyesfood.data.api.model.Additive;
+import com.example.jonsmauricio.eyesfood.data.api.model.Comment;
 import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.FoodImage;
 import com.example.jonsmauricio.eyesfood.data.api.model.Ingredient;
 import com.example.jonsmauricio.eyesfood.data.api.model.Recommendation;
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,14 +63,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     grasaTrans100, grasaTransPorcion, colesterol100, colesterolPorcion, hidratos100, hidratosPorcion, azucares100,
     azucaresPorcion, fibra100, fibraPorcion, sodio100, sodioPorcion;
 
-    String CodigoBarras, NombreMarca, Producto, Nombre, Fecha, OfficialPhoto;
-
-    String Porcion, PorcionUnit, Energia, Proteinas, GrasaTotal, GrasaSat, GrasaMono, GrasaPoli, GrasaTrans,
-            Colesterol, Hidratos, Azucares, Fibra, Sodio, Unit;
-
-    int Neto;
-
-    float Peligro;
+    String CodigoBarras;
     RatingBar infoGeneralRating;
 
     //Para los botonos
@@ -75,12 +71,16 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
     private List<Ingredient> listaIngredientes;
     private List<Ingredient> listaAditivos;
+    private List<Additive> listaAditivosFull;
     private List<Recommendation> listaRecomendaciones;
-    private List<FoodImage> listaImagenes;
+    private ArrayList<FoodImage> listaImagenes;
+    private List<Comment> listaComentarios;
     ImageView ivFoodPhoto;
 
     Retrofit mRestAdapter;
     private EyesFoodApi mEyesFoodApi;
+
+    private Food Alimento;
 
     //Permissions
     private static final int PERMISSION_CODE = 123;
@@ -99,6 +99,10 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabFoods);
+
+        fab.setOnClickListener(this);
 
         //Para la info general
         infoGeneralNombre = (TextView) findViewById(R.id.tvFoodsInfoGeneralNombre);
@@ -152,27 +156,6 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         ivFoodPhoto = (ImageView) findViewById(R.id.image_paralax);
         final CollapsingToolbarLayout collapser = (CollapsingToolbarLayout) findViewById(R.id.collapser);
 
-        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.foods_app_bar);
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            boolean isShow = false;
-            int scrollRange = -1;
-
-        //TODO: Revisar si esto se ve bien
-        @Override
-        public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-            if (scrollRange == -1) {
-                scrollRange = appBarLayout.getTotalScrollRange();
-            }
-            if (scrollRange + verticalOffset == 0) {
-                //collapser.setTitle("Title");
-                isShow = true;
-            } else if(isShow) {
-                //collapser.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
-                isShow = false;
-            }
-        }
-        });
-
         // Crear conexión al servicio REST
         mRestAdapter = new Retrofit.Builder()
                 .baseUrl(EyesFoodApi.BASE_URL)
@@ -188,74 +171,35 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         //Recibe los datos enviados por el scanner o lista
         if(b!=null)
         {
-            Nombre = (String) b.get("Nombre");
-            collapser.setTitle(Nombre); // Cambiar título
+            Alimento = (Food) b.get("Alimento");
+            collapser.setTitle(Alimento.getName()); // Cambiar título
             //setTitle(Nombre);
-            CodigoBarras = (String) b.get("CodigoBarras");
-            loadFoods(CodigoBarras);
+            CodigoBarras = Alimento.getBarCode();
+            showFood(Alimento);
+            showNutritionFacts(Alimento);
             loadIngredients(CodigoBarras);
-            loadRecommendations(CodigoBarras);
-            loadImages(CodigoBarras);
         }
-    }
-
-    //Retorna un alimento
-    //Token: Token de autorización
-    //Barcode: Código de barras del alimento a retornar
-    public void loadFoods(String barcode) {
-        Call<Food> call = mEyesFoodApi.getFood(barcode);
-        call.enqueue(new Callback<Food>() {
-            @Override
-            public void onResponse(Call<Food> call,
-                                   Response<Food> response) {
-                if (!response.isSuccessful()) {
-                    // TODO: Procesar error de API
-                    return;
-                }
-                //Si entro acá el alimento existe en la BD y lo obtengo
-                Food resultado = response.body();
-                showFood(resultado);
-                showNutritionFacts(resultado);
-            }
-
-            @Override
-            public void onFailure(Call<Food> call, Throwable t) {
-
-            }
-        });
     }
 
     //Carga los datos del alimento al iniciar la pantalla
     //alimento: Alimento a cargar
     public void showFood(Food alimento){
 
-        Nombre = alimento.getName();
-        Producto = alimento.getProductId();
-        Peligro = alimento.getFoodHazard();
-        Fecha = alimento.getDate();
-        NombreMarca = alimento.getBrandCode();
-        Neto = alimento.getContent();
-
-        OfficialPhoto = alimento.getOfficialPhoto();
-
         Picasso.with(this)
-                .load(baseFotoAlimento + OfficialPhoto)
+                .load(baseFotoAlimento + alimento.getOfficialPhoto())
                 .into(ivFoodPhoto);
 
-        infoGeneralNombre.setText(Nombre);
-        infoGeneralProducto.setText(Producto);
-        infoGeneralRating.setRating(Peligro);
-        infoGeneralCodigo.append(" "+CodigoBarras);
-        infoGeneralMarca.append(" "+NombreMarca);
-        infoGeneralNeto.append(" "+Neto+" "+alimento.getUnit());
-        infoGeneralFecha.append(" "+Fecha);
+        infoGeneralNombre.setText(alimento.getName());
+        infoGeneralProducto.setText(alimento.getProductId());
+        infoGeneralRating.setRating(alimento.getFoodHazard());
+        infoGeneralCodigo.append(" "+alimento.getBarCode());
+        infoGeneralMarca.append(" "+alimento.getBrandCode());
+        infoGeneralNeto.append(" "+alimento.getContent()+" "+alimento.getUnit());
+        infoGeneralFecha.append(" "+alimento.getDate());
     }
 
     //Muestra la información nutricional del alimento
     public void showNutritionFacts(Food alimento){
-        Porcion = alimento.getPortion();
-        PorcionUnit = String.valueOf(alimento.getPortionGr());
-        Unit = alimento.getUnit();
 
         float portion = alimento.getPortionGr();
         porcion.append(" "+alimento.getPortion());
@@ -274,19 +218,6 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         setTextNutrition(alimento.getTotalSugar(), portion, azucares100, azucaresPorcion);
         setTextNutrition(alimento.getFiber(), portion, fibra100, fibraPorcion);
         setTextNutrition(alimento.getSodium(), portion, sodio100, sodioPorcion);
-
-        Energia = String.valueOf(energia100.getText());
-        Proteinas = String.valueOf(proteinas100.getText());
-        GrasaTotal = String.valueOf(grasaTotal100.getText());
-        GrasaSat = String.valueOf(grasaSaturada100.getText());
-        GrasaMono = String.valueOf(grasaMono100.getText());
-        GrasaPoli = String.valueOf(grasaPoli100.getText());
-        GrasaTrans = String.valueOf(grasaTrans100.getText());
-        Colesterol = String.valueOf(colesterol100.getText());
-        Hidratos = String.valueOf(hidratos100.getText());
-        Azucares = String.valueOf(azucares100.getText());
-        Fibra = String.valueOf(fibra100.getText());
-        Sodio = String.valueOf(sodio100.getText());
     }
 
     public void setTextNutrition(float content, float portion, TextView tv100, TextView tvPortion){
@@ -348,8 +279,8 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
                     return;
                 }
                 listaAditivos = response.body();
-                String cantidadAditivos = String.valueOf(listaAditivos.size());
-                additives.setText("Aditivos ("+cantidadAditivos+")");
+                //String cantidadAditivos = String.valueOf(listaAditivos.size());
+                //additives.setText("Aditivos ("+cantidadAditivos+")");
                 //Une las listas de ingredientes y de aditivos para efectuar el orden
                 List<Ingredient> listaFinal = unirListas(listaIngredientes, listaAditivos);
                 mostrarIngredientes(listaFinal);
@@ -428,14 +359,64 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
                     return;
                 }
                 listaRecomendaciones = response.body();
-                String cantidadRecomendaciones = String.valueOf(listaRecomendaciones.size());
-                recommendations.setText("Recomendaciones ("+cantidadRecomendaciones+")");
+                showRecommendations(listaRecomendaciones);
             }
 
             @Override
             public void onFailure(Call<List<Recommendation>> call, Throwable t) {
             }
         });
+    }
+
+    public void showRecommendations(List<Recommendation> lista){
+        if(lista.size()>0) {
+            Intent intent = new Intent(this, RecommendationsActivity.class);
+            Bundle args = new Bundle();
+            args.putSerializable("Recomendaciones",(Serializable) lista);
+            intent.putExtra("BUNDLE",args);
+
+            intent.putExtra("Alimento",Alimento);
+            startActivity(intent);
+        }
+        else{
+            hacerToast(getResources().getString(R.string.dialog_no_recommendations));
+        }
+    }
+
+    //Carga la lista de aditivos completa
+    public void loadAdditivesFull(String barcode){
+        Call<List<Additive>> call = mEyesFoodApi.getFullAdditives(barcode);
+        call.enqueue(new Callback<List<Additive>>() {
+            @Override
+            public void onResponse(Call<List<Additive>> call,
+                                   Response<List<Additive>> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                listaAditivosFull = response.body();
+                showAdditives(listaAditivosFull);
+            }
+
+            @Override
+            public void onFailure(Call<List<Additive>> call, Throwable t) {
+                Log.d("Falla", "Falla en la llamada de aditivos: loadAdditives");
+            }
+        });
+    }
+
+    public void showAdditives(List<Additive> listaAditivos){
+        if(listaAditivos.size()>0) {
+            Intent intent = new Intent(this, AdditivesActivity.class);
+            Bundle args = new Bundle();
+            args.putSerializable("Aditivos",(Serializable) listaAditivos);
+            intent.putExtra("BUNDLE",args);
+
+            intent.putExtra("Alimento",Alimento);
+            startActivity(intent);
+        }
+        else{
+            hacerToast(getResources().getString(R.string.dialog_no_additives));
+        }
     }
 
     //Carga las recomendaciones del alimento
@@ -449,14 +430,58 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
                     return;
                 }
                 listaImagenes = response.body();
-                String cantidadImagenes = String.valueOf(listaImagenes.size());
-                images.setText("Imágenes ("+cantidadImagenes+")");
+                showImages(listaImagenes);
             }
 
             @Override
             public void onFailure(Call<ArrayList<FoodImage>> call, Throwable t) {
             }
         });
+    }
+
+    public void showImages(ArrayList<FoodImage> lista){
+        if(lista.size()>0) {
+            Intent intent = new Intent(this, ImagesActivity.class);
+            Bundle args = new Bundle();
+            args.putSerializable("Imagenes",lista);
+            intent.putExtra("BUNDLE",args);
+
+            intent.putExtra("Alimento",Alimento);
+            startActivity(intent);
+        }
+        else{
+            hacerToast(getResources().getString(R.string.dialog_no_images));
+        }
+    }
+
+    //Carga los comentarios del alimento
+    public void loadComments(String barcode) {
+        Call<List<Comment>> call = mEyesFoodApi.getComments(barcode);
+        call.enqueue(new Callback<List<Comment>>() {
+            @Override
+            public void onResponse(Call<List<Comment>> call,
+                                   Response<List<Comment>> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                listaComentarios = response.body();
+                showComments(listaComentarios);
+            }
+
+            @Override
+            public void onFailure(Call<List<Comment>> call, Throwable t) {
+            }
+        });
+    }
+
+    public void showComments(List<Comment> lista){
+            Intent intent = new Intent(this, CommentsActivity.class);
+            Bundle args = new Bundle();
+            args.putSerializable("Comentarios",(Serializable) lista);
+            intent.putExtra("BUNDLE",args);
+
+            intent.putExtra("Alimento",Alimento);
+            startActivity(intent);
     }
 
     //Carga el menú a la toolbar
@@ -470,40 +495,20 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         switch (v.getId()) {
 
+            case R.id.fabFoods: {
+                loadComments(CodigoBarras);
+                break;
+            }
             case R.id.btFoodsAdditives: {
-                if(listaAditivos.size()>0) {
-                    Intent intent = new Intent(this, AdditivesActivity.class);
-                    intent.putExtra("CodigoBarras", CodigoBarras);
-                    intent.putExtra("Nombre", Nombre);
-                    startActivity(intent);
-                }
-                else{
-                    hacerToast(getResources().getString(R.string.dialog_no_additives));
-                }
+                loadAdditivesFull(CodigoBarras);
                 break;
             }
             case R.id.btFoodsRecommendations: {
-                if(listaRecomendaciones.size()>0) {
-                    Intent intent = new Intent(this, RecommendationsActivity.class);
-                    intent.putExtra("CodigoBarras", CodigoBarras);
-                    intent.putExtra("Nombre", Nombre);
-                    startActivity(intent);
-                }
-                else{
-                    hacerToast(getResources().getString(R.string.dialog_no_recommendations));
-                }
+                loadRecommendations(CodigoBarras);
                 break;
             }
             case R.id.btFoodsImages: {
-                if(listaImagenes.size()>0) {
-                    Intent intent = new Intent(this, ImagesActivity.class);
-                    intent.putExtra("CodigoBarras", CodigoBarras);
-                    intent.putExtra("Nombre", Nombre);
-                    startActivity(intent);
-                }
-                else{
-                    hacerToast(getResources().getString(R.string.dialog_no_images));
-                }
+                loadImages(CodigoBarras);
                 break;
             }
         }
@@ -599,26 +604,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
     private void showSelectedDialog(int seleccion){
         Bundle bundle = new Bundle();
-        bundle.putString("barCode", CodigoBarras);
-        bundle.putString("Nombre", Nombre);
-        bundle.putString("Producto", Producto);
-        bundle.putString("Marca", NombreMarca);
-        bundle.putString("Neto", String.valueOf(Neto));
-        bundle.putString("Porcion", String.valueOf(Porcion));
-        bundle.putString("PorcionUnit", String.valueOf(PorcionUnit));
-        bundle.putString("Energia", String.valueOf(Energia));
-        bundle.putString("Proteinas", String.valueOf(Proteinas));
-        bundle.putString("GrasaTotal", String.valueOf(GrasaTotal));
-        bundle.putString("GrasaSat", String.valueOf(GrasaSat));
-        bundle.putString("GrasaMono", String.valueOf(GrasaMono));
-        bundle.putString("GrasaPoli", String.valueOf(GrasaPoli));
-        bundle.putString("GrasaTrans", String.valueOf(GrasaTrans));
-        bundle.putString("Colesterol", String.valueOf(Colesterol));
-        bundle.putString("Hidratos", String.valueOf(Hidratos));
-        bundle.putString("Azucares", String.valueOf(Azucares));
-        bundle.putString("Fibra", String.valueOf(Fibra));
-        bundle.putString("Sodio", String.valueOf(Sodio));
-        bundle.putString("Unit", String.valueOf(Unit));
+        bundle.putSerializable("Alimento", Alimento);
         // set Fragmentclass Arguments
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -646,22 +632,4 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         }
         transaction.commit();
     }
-
-    /*private void showUploadImages(){
-        Bundle bundle = new Bundle();
-        bundle.putString("barCode", CodigoBarras);
-        // set Fragmentclass Arguments
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        UploadImageDialogFragment newFragment = new UploadImageDialogFragment();
-        newFragment.setArguments(bundle);
-
-        // The device is smaller, so show the fragment fullscreen
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        // For a little polish, specify a transition animation
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        // To make it fullscreen, use the 'content' root view as the container
-        // for the fragment, which is always the root view for the activity
-        transaction.replace(android.R.id.content, newFragment).addToBackStack(null).commit();
-    }*/
 }

@@ -4,29 +4,31 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.jonsmauricio.eyesfood.R;
+import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.FoodImage;
+
+import java.util.ArrayList;
 
 public class ImagesDetailActivity extends AppCompatActivity {
 
-    public static final String VIEW_NAME_HEADER_IMAGE = "imagen_compartida";
-    //Necesito la ruta para cargar la imagen
-    private String ruta;
-    //La fecha para ponerla abajo
-    private String date;
-    //El id de usuario para buscar su nombre y apellido
-    private String idUsuario;
-    private String nombreUsuario;
-    private String apellidoUsuario;
-    //Nombre del producto para el título
-    private String Nombre;
-    private ImageView extendedImage;
+    ViewPager viewPager;
+    LinearLayout sliderDotsPanel;
+    private int dotsCount;
+    private ImageView[] dots;
+    private int indiceActual;
+    ArrayList<FoodImage> listaImagenes = new ArrayList<FoodImage>();
+    private Food Alimento;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,32 +38,75 @@ public class ImagesDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        viewPager = (ViewPager) findViewById(R.id.vpViewPager);
+        sliderDotsPanel = (LinearLayout) findViewById((R.id.llSliderDotsPanel));
+
         Intent i = getIntent();
+        Bundle args = i.getBundleExtra("BUNDLE");
+        listaImagenes = (ArrayList<FoodImage>) args.getSerializable("Imagenes");
         Bundle b = i.getExtras();
-
-        /*//Recibe los datos enviados por el scanner o lista
-        if(b!=null)
-        {
-            ruta = (String) b.get("ruta");
-            date = (String) b.get("ruta");
-            setTitle(Nombre);
-            CodigoBarras = (String) b.get("CodigoBarras");
-            loadImages(CodigoBarras);
-            Log.d("myTag","cargue con "+CodigoBarras);
+        if(b != null){
+            indiceActual = (int) b.get("indice");
+            Alimento = (Food) b.get("Alimento");
+            setTitle(Alimento.getName());
         }
-        // Obtener la imagen con el identificador establecido en la actividad principal
-        ruta = Coche.getItem(getIntent().getIntExtra("idImagen", 0));
 
-        imagenExtendida = (ImageView) findViewById(R.id.imagen_extendida);
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, listaImagenes);
+        viewPager.setAdapter(viewPagerAdapter);
+        dotsCount = viewPagerAdapter.getCount();
+        dots = new ImageView[dotsCount];
+        int indice;
+        for(indice=0; indice<dotsCount; indice++){
+            dots[indice] = new ImageView(this);
+            dots[indice].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.nonactive_dot));
 
-        cargarImagenExtendida();
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+            params.setMargins(8, 0, 8, 0);
+            sliderDotsPanel.addView(dots[indice], params);
+        }
+
+        dots[0].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.active_dot));
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                int i;
+                for(i=0; i<dotsCount; i++){
+                    dots[i].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.nonactive_dot));
+                }
+
+                dots[position].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.active_dot));
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        viewPager.setCurrentItem(indiceActual);
     }
 
-    private void cargarImagenExtendida() {
-        Glide.with(imagenExtendida.getContext())
-                .load(itemDetallado.getIdDrawable())
-                .into(imagenExtendida);
-    }*/
-    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intent = new Intent(this, ImagesActivity.class);
+                Bundle args = new Bundle();
+                args.putSerializable("Imagenes",listaImagenes);
+                intent.putExtra("BUNDLE",args);
 
+                intent.putExtra("Alimento", Alimento);
+                startActivity(intent);
+                return(true);
+        }
+
+        return(super.onOptionsItemSelected(item));
+    }
 }

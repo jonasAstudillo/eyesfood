@@ -23,7 +23,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
@@ -49,7 +48,6 @@ public class HistoryActivity extends AppCompatActivity
 
     Retrofit mRestAdapter;
     EyesFoodApi mEyesFoodApi;
-    private ArrayAdapter<ShortFood> adaptador;
 
     //Obtengo token e id de Usuario
     private String userIdFinal;
@@ -82,7 +80,6 @@ public class HistoryActivity extends AppCompatActivity
 
         searchView = (MaterialSearchView) findViewById(R.id.search_view);
 
-        // TODO: 19-10-2017 Borrar este botón de prueba
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(this);
@@ -116,7 +113,6 @@ public class HistoryActivity extends AppCompatActivity
     }
 
     //Carga alimentos en el historial
-    //Token: token de autorización
     //UserId: Id de usuario
     // TODO: 19-10-2017 Cuando haya más listas los métodos son iguales a este
     public void loadHistoryFoods(String userId) {
@@ -188,7 +184,6 @@ public class HistoryActivity extends AppCompatActivity
     }
 
     //Retorna un alimento al pinchar en el historial
-    //Token: Token de autorización
     //Barcode: Código de barras del alimento a retornar
     public void loadFoodsFromHistory(String barcode) {
         Call<Food> call = mEyesFoodApi.getFood(barcode);
@@ -282,9 +277,7 @@ public class HistoryActivity extends AppCompatActivity
     //resultado: Alimento a mostrar
     public void showFoodsScreen(Food resultado){
         Intent i = new Intent(this, FoodsActivity.class);
-        //String strName = resultado.getName();
-        i.putExtra("CodigoBarras",resultado.getBarCode());
-        i.putExtra("Nombre", resultado.getName());
+        i.putExtra("Alimento",resultado);
         startActivity(i);
     }
 
@@ -340,6 +333,7 @@ public class HistoryActivity extends AppCompatActivity
         }
     }
 
+    //TODO: Este método tiene problemas, no actualiza en servidor remoto, está mal el final?
     //Comprueba si el alimento consultado está en el historial del usuario
     public void isFoodInHistory(String userId, final String barcode){
         Call<ShortFood> call = mEyesFoodApi.isInHistory(userId, barcode);
@@ -411,7 +405,20 @@ public class HistoryActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            new AlertDialog.Builder(this)
+                    .setIcon(null)
+                    .setTitle("Salir")
+                    .setMessage("¿Está seguro que desea salir de la aplicación?")
+                    .setPositiveButton("Sí", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         }
     }
 
@@ -449,7 +456,6 @@ public class HistoryActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-
             SessionPrefs.get(HistoryActivity.this).logOut();
             return true;
         }
