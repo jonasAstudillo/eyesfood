@@ -22,6 +22,8 @@ public class SessionPrefs {
     private static final String PREF_USER_GENDER = "PREF_USER_GENDER";
     private static final String PREF_USER_HEIGHT = "PREF_USER_HEIGHT";
     private static final String PREF_USER_COUNTRY = "PREF_USER_COUNTRY";
+    //normal, facebook o gmail
+    private static final String PREF_USER_SESSION = "PREF_USER_SESSION";
 
     private final SharedPreferences mPrefs;
 
@@ -60,6 +62,7 @@ public class SessionPrefs {
             editor.putString(PREF_USER_GENDER, user.getGender());
             editor.putString(PREF_USER_HEIGHT, user.getHeight());
             editor.putString(PREF_USER_COUNTRY, user.getCountry());
+            editor.putString(PREF_USER_SESSION, user.getSession());
             editor.apply();
 
             mIsLoggedIn = true;
@@ -79,6 +82,7 @@ public class SessionPrefs {
         editor.putString(PREF_USER_GENDER, null);
         editor.putString(PREF_USER_HEIGHT, null);
         editor.putString(PREF_USER_COUNTRY, null);
+        editor.putString(PREF_USER_SESSION, null);
         editor.apply();
     }
 
@@ -87,6 +91,9 @@ public class SessionPrefs {
     }
     public String getUserPhoto(){
         return mPrefs.getString(PREF_USER_PHOTO, null);
+    }
+    public String getUserSession(){
+        return mPrefs.getString(PREF_USER_SESSION, null);
     }
 
 }

@@ -25,8 +25,8 @@ public interface EyesFoodApi {
     //Cambiar host por IP de tu PC para dispositivo real.
     // Esta es la ip de usach alumnos
     // public static final String BASE_URL = "http://158.170.214.219/api.eyesfood.cl/v1/";
-    String BASE_URL = "http://192.168.0.105/api.eyesfood.cl/v1/";
-    //String BASE_URL = "https://eyesfood.000webhostapp.com/api.eyesfood.cl/v1/";
+    //String BASE_URL = "http://192.168.0.105/api.eyesfood.cl/v1/";
+    String BASE_URL = "https://eyesfood.000webhostapp.com/api.eyesfood.cl/v1/";
 
     //Esta petición tiene un parámetro del tipo @Body que es un LoginBody llamado loginBody
     @POST("users/login")
@@ -104,12 +104,11 @@ public interface EyesFoodApi {
     @POST("comments/{barcode}")
     Call<Comment> newComment(@Body CommentBody commentBody, @Path("barcode") String barcode);
 
-    //Verifica si el correo de inicio de sesión de gmail existe en la base de datos de usuarios
-    @POST("users/gmail")
-    Call<User> findGmailUser(@Body GmailUserBody gmailUserBody);
+    //Verifica si el correo de inicio de sesión de gmail o facebook existe en la base de datos de usuarios
+    @POST("users/external")
+    Call<User> findExternalUser(@Body GmailUserBody gmailUserBody);
 
     //Inserta una solicitud de edición de alimento
-    @POST("users/gmail/register")
-    Call<User> registerGmailUser(@Body GmailRegisterBody gmailRegisterBody);
-
+    @POST("users/external/register")
+    Call<User> registerExternalUser(@Body GmailRegisterBody gmailRegisterBody);
 }

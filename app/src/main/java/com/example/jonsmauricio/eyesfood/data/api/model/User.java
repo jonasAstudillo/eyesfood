@@ -27,9 +27,10 @@ public class User {
     private String height;
     @SerializedName("Nacionalidad")
     private String country;
+    private String session;
 
     public User(String id, String name, String surName, String email, String photo, String reputation, String dateBirth,
-                String gender, String height, String country) {
+                String gender, String height, String country, String session) {
         this.id = id;
         this.name = name;
         this.surName = surName;
@@ -40,6 +41,7 @@ public class User {
         this.gender = gender;
         this.height = height;
         this.country = country;
+        this.session = session;
     }
 
     public String getId() {
@@ -90,5 +92,13 @@ public class User {
 
     public String getCountry() {
         return country;
+    }
+
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
     }
 }
