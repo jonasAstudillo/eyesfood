@@ -29,6 +29,16 @@ import com.example.jonsmauricio.eyesfood.data.api.model.*;
 import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
 import com.example.jonsmauricio.eyesfood.data.api.*;
 import com.example.jonsmauricio.eyesfood.R;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInApi;
@@ -39,7 +49,11 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.Arrays;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -55,8 +69,13 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
 
     Retrofit mRestAdapter;
 
-    // UI references.
+    //Gmail y Facebook
     private SignInButton signInButtonGmail;
+    private LoginButton loginButtonFacebook;
+    private CallbackManager callbackManager;
+    private String session;
+
+    // UI references.
     private ImageView ivLoginLogo;
     private EditText mUserIdView;
     private EditText mPasswordView;
@@ -100,6 +119,8 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        callbackManager = CallbackManager.Factory.create();
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
@@ -129,6 +150,36 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
         mSignUp = (TextView) findViewById(R.id.link_signup);
         loginProgressText = (TextView) findViewById(R.id.login_progress_text);
 
+        loginButtonFacebook = (LoginButton) findViewById(R.id.bt_login_facebook);
+        loginButtonFacebook.setReadPermissions(Arrays.asList("email"));
+        loginButtonFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d("Facebook","Success");
+                session = "Facebook";
+                requestEmail(AccessToken.getCurrentAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d("Facebook","Cancel");
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.d("Facebook","Error");
+            }
+        });
+
+        ProfileTracker profileTracker = new ProfileTracker() {
+            @Override
+            protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
+                if (currentProfile != null) {
+                    displayProfileInfo(currentProfile);
+                }
+            }
+        };
+
         signInButtonGmail = (SignInButton) findViewById(R.id.bt_login_gmail);
         signInButtonGmail.setSize(SignInButton.SIZE_WIDE);
         signInButtonGmail.setColorScheme(SignInButton.COLOR_DARK);
@@ -152,6 +203,37 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
         signInButtonGmail.setOnClickListener(this);
         mSignInButton.setOnClickListener(this);
         mSignUp.setOnClickListener(this);
+    }
+
+    private void displayProfileInfo(Profile currentProfile) {
+        nombre = currentProfile.getFirstName();
+        apellido = currentProfile.getLastName();
+        fotoString = currentProfile.getProfilePictureUri(100, 100).toString();
+
+        Log.d("Facebook", "Profile Tracker: "+ nombre + " " + apellido + " " + fotoString);
+
+    }
+
+    private void requestEmail(AccessToken currentAccessToken) {
+        GraphRequest request = GraphRequest.newMeRequest(currentAccessToken, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+                if (response.getError() != null) {
+                    Toast.makeText(getApplicationContext(), response.getError().getErrorMessage(), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                try {
+                    correo = object.getString("email");
+                    findUser(correo);
+                } catch (JSONException e) {
+                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id, first_name, last_name, email, gender, birthday, location");
+        request.setParameters(parameters);
+        request.executeAsync();
     }
 
     //Sustituye la acción realizada al pulsar el botón back
@@ -183,6 +265,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
                     showLoginError(getString(R.string.error_network));
                     return;
                 }
+                session = "EyesFood";
                 attemptLogin();
                 break;
             }
@@ -195,6 +278,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
                     showLoginError(getString(R.string.error_network));
                     return;
                 }
+                session = "Gmail";
                 Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
                 startActivityForResult(intent, GMAIL_RESULT_CODE);
             }
@@ -284,6 +368,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
                     // Guardar afiliado en preferencias
                     //body: Cuerpo deserializado de la petición exitosa
                     User usuario = response.body();
+                    usuario.setSession(session);
                     SessionPrefs.get(LoginActivity.this).saveUser(usuario);
 
                     // Ir a la pantalla principal
@@ -335,6 +420,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
         }
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
@@ -353,25 +439,28 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
             }
 
             //Consulta con el correo para ver si existe la cuenta
-            findGmailUser(correo);
+            findUser(correo);
         }
         else{
             Toast.makeText(this, R.string.login_gmail_failed, Toast.LENGTH_LONG).show();
         }
     }
 
-    private void findGmailUser(String email) {
-        Call<User> call = mEyesFoodApi.findGmailUser(new GmailUserBody(email));
+    private void findUser(String email) {
+        Call<User> call = mEyesFoodApi.findExternalUser(new GmailUserBody(email));
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (!response.isSuccessful()) {
+                    Log.d("myTag","no existe no es succesful");
                     Log.d("myTag",nombre + " " + apellido + " " + correo + " " + fotoString);
                     registerGmailUser(nombre, apellido, correo, fotoString);
                     return;
                 }
                 Log.d("myTag","Existe");
+                Log.d("myTag",nombre + " " + apellido + " " + correo + " " + fotoString);
                 User user = response.body();
+                user.setSession(session);
                 SessionPrefs.get(LoginActivity.this).saveUser(user);
                 // Ir a la pantalla principal
                 showHistoryScreen();
@@ -385,7 +474,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
     }
 
     private void registerGmailUser(String nombre, String apellido, String correo, String fotoString) {
-        Call<User> call = mEyesFoodApi.registerGmailUser(new GmailRegisterBody(nombre, apellido, correo, fotoString));
+        Call<User> call = mEyesFoodApi.registerExternalUser(new GmailRegisterBody(nombre, apellido, correo, fotoString));
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
@@ -394,6 +483,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener,
                     return;
                 }
                 User user = response.body();
+                user.setSession(session);
                 SessionPrefs.get(LoginActivity.this).saveUser(user);
                 // Ir a la pantalla principal
                 showHistoryScreen();

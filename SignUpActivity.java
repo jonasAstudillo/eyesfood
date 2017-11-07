@@ -223,8 +223,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         showLoginError(error);
                         return;
                     }
-
-                    SessionPrefs.get(SignUpActivity.this).saveUser(response.body());
+                    User usuario = response.body();
+                    usuario.setSession("EyesFood");
+                    SessionPrefs.get(SignUpActivity.this).saveUser(usuario);
 
                     // Ir a la página principal
                     showHistoryScreen();

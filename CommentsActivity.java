@@ -46,7 +46,7 @@ public class CommentsActivity extends AppCompatActivity {
 
     //Obtengo token e id de Usuario
     private String userIdFinal;
-    private String userPhoto;
+    private String session;
     private String CodigoBarras;
 
     private ListView listaComentarios;
@@ -73,6 +73,7 @@ public class CommentsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         userIdFinal = SessionPrefs.get(this).getUserId();
+        session = SessionPrefs.get(this).getUserSession();
         String userPhoto = SessionPrefs.get(this).getUserPhoto();
 
         listaComentarios = (ListView) findViewById(R.id.lvComments);
@@ -85,7 +86,12 @@ public class CommentsActivity extends AppCompatActivity {
         Bundle b = i.getExtras();
 
         //Cargo avatar de usuario actual
-        Picasso.with(this).load(baseFotoUsuario + userPhoto).resize(800,800).into(userAvatar);
+        if(session.equals("EyesFood")) {
+            Picasso.with(this).load(baseFotoUsuario + userPhoto).resize(800, 800).into(userAvatar);
+        }
+        else{
+            Picasso.with(this).load(userPhoto).resize(800, 800).into(userAvatar);
+        }
 
         Bundle args = i.getBundleExtra("BUNDLE");
         comentarios = (List<Comment>) args.getSerializable("Comentarios");

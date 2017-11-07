@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
@@ -32,6 +33,13 @@ import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.HistoryFoodBody;
 import com.example.jonsmauricio.eyesfood.data.api.model.ShortFood;
 import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.zxing.client.android.CaptureActivity;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
@@ -44,13 +52,14 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HistoryActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnClickListener, ItemClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnClickListener, ItemClickListener, GoogleApiClient.OnConnectionFailedListener{
 
     Retrofit mRestAdapter;
     EyesFoodApi mEyesFoodApi;
 
-    //Obtengo token e id de Usuario
+    //Obtengo id de Usuario y sesión
     private String userIdFinal;
+    private String session;
 
     //Instancias globales para el Card view
     private RecyclerView recycler;
@@ -61,6 +70,7 @@ public class HistoryActivity extends AppCompatActivity
     private String barCode;
 
     MaterialSearchView searchView;
+    private GoogleApiClient googleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +83,18 @@ public class HistoryActivity extends AppCompatActivity
             return;
         }
 
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
         userIdFinal = SessionPrefs.get(this).getUserId();
+        session = SessionPrefs.get(this).getUserSession();
+
         setContentView(R.layout.activity_history);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -456,6 +477,20 @@ public class HistoryActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            if(session.equals("Facebook")) {
+                LoginManager.getInstance().logOut();
+                Log.d("myTag","facebook");
+            }
+            else if(session.equals("Gmail")) {
+                Auth.GoogleSignInApi.signOut(googleApiClient).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+
+                    }
+                });
+                Log.d("myTag","gmail");
+            }
+            Log.d("myTag","eyesfood");
             SessionPrefs.get(HistoryActivity.this).logOut();
             finish();
             return true;
@@ -487,5 +522,10 @@ public class HistoryActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }
