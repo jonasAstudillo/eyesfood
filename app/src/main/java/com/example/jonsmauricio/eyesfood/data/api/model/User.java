@@ -7,32 +7,29 @@ import com.google.gson.annotations.SerializedName;
     Clase utilizada para obtener los usuarios cuando inician sesión
 */
 public class User {
-
-    @SerializedName("idusuario")
+    @SerializedName("idUsuario")
     private String id;
-    @SerializedName("nombre")
+    @SerializedName("Nombre")
     private String name;
-    @SerializedName("apellido")
+    @SerializedName("Apellido")
     private String surName;
-    @SerializedName("correo")
+    @SerializedName("Correo")
     private String email;
-    @SerializedName("fotousuario")
+    @SerializedName("FotoUsuario")
     private String photo;
-    @SerializedName("reputacion")
+    @SerializedName("Reputacion")
     private String reputation;
-    @SerializedName("fechanacimiento")
+    @SerializedName("FechaNacimiento")
     private String dateBirth;
-    @SerializedName("sexo")
+    @SerializedName("Sexo")
     private String gender;
-    @SerializedName("estatura")
+    @SerializedName("Estatura")
     private String height;
-    @SerializedName("nacionalidad")
+    @SerializedName("Nacionalidad")
     private String country;
-    @SerializedName("token")
-    private String token;
 
     public User(String id, String name, String surName, String email, String photo, String reputation, String dateBirth,
-                String gender, String height, String country, String token) {
+                String gender, String height, String country) {
         this.id = id;
         this.name = name;
         this.surName = surName;
@@ -43,7 +40,6 @@ public class User {
         this.gender = gender;
         this.height = height;
         this.country = country;
-        this.token = token;
     }
 
     public String getId() {
@@ -94,9 +90,5 @@ public class User {
 
     public String getCountry() {
         return country;
-    }
-
-    public String getToken() {
-        return token;
     }
 }

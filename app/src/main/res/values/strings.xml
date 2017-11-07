@@ -162,4 +162,5 @@
 
     <string name="hint_comments">Escribe un comentario...</string>
     <string name="comments_empty_state">El alimento no tiene comentarios ¡Se el primero!</string>
+    <string name="login_gmail_failed">No se pudo iniciar sesión</string>
 </resources>

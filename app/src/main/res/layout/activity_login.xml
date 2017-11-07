@@ -110,6 +110,18 @@
                 android:padding="12dp"
                 android:text="Inicia sesión con FB"
                 style="@style/RaisedButton"/>
+            
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/bt_login_gmail"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
+
+            </com.google.android.gms.common.SignInButton>
 
             <!--<com.facebook.login.widget.LoginButton
                 android:id="@+id/login_button"

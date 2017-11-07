@@ -104,4 +104,12 @@ public interface EyesFoodApi {
     @POST("comments/{barcode}")
     Call<Comment> newComment(@Body CommentBody commentBody, @Path("barcode") String barcode);
 
+    //Verifica si el correo de inicio de sesión de gmail existe en la base de datos de usuarios
+    @POST("users/gmail")
+    Call<User> findGmailUser(@Body GmailUserBody gmailUserBody);
+
+    //Inserta una solicitud de edición de alimento
+    @POST("users/gmail/register")
+    Call<User> registerGmailUser(@Body GmailRegisterBody gmailRegisterBody);
+
 }

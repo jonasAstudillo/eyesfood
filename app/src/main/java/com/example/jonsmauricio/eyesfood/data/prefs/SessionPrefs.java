@@ -22,7 +22,6 @@ public class SessionPrefs {
     private static final String PREF_USER_GENDER = "PREF_USER_GENDER";
     private static final String PREF_USER_HEIGHT = "PREF_USER_HEIGHT";
     private static final String PREF_USER_COUNTRY = "PREF_USER_COUNTRY";
-    private static final String PREF_USER_TOKEN = "PREF_USER_TOKEN";
 
     private final SharedPreferences mPrefs;
 
@@ -41,7 +40,7 @@ public class SessionPrefs {
         mPrefs = context.getApplicationContext()
                 .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        mIsLoggedIn = !TextUtils.isEmpty(mPrefs.getString(PREF_USER_TOKEN, null));
+        mIsLoggedIn = !TextUtils.isEmpty(mPrefs.getString(PREF_USER_ID, null));
     }
 
     public boolean isLoggedIn() {
@@ -61,7 +60,6 @@ public class SessionPrefs {
             editor.putString(PREF_USER_GENDER, user.getGender());
             editor.putString(PREF_USER_HEIGHT, user.getHeight());
             editor.putString(PREF_USER_COUNTRY, user.getCountry());
-            editor.putString(PREF_USER_TOKEN, user.getToken());
             editor.apply();
 
             mIsLoggedIn = true;
@@ -81,7 +79,6 @@ public class SessionPrefs {
         editor.putString(PREF_USER_GENDER, null);
         editor.putString(PREF_USER_HEIGHT, null);
         editor.putString(PREF_USER_COUNTRY, null);
-        editor.putString(PREF_USER_TOKEN, null);
         editor.apply();
     }
 
