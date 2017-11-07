@@ -38,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
 import com.example.jonsmauricio.eyesfood.data.api.model.ApiError;
@@ -215,7 +216,12 @@ public class UploadImageDialogFragment extends DialogFragment {
                     e.printStackTrace();
                 }
                 absolutePath = destination.getAbsolutePath();
-                Picasso.with(getContext())
+                /*Picasso.with(getContext())
+                        .load(filePath)
+                        .resize(800,800)
+                        .into(photoSelected);*/
+
+                Glide.with(getContext())
                         .load(filePath)
                         .into(photoSelected);
 
@@ -230,7 +236,7 @@ public class UploadImageDialogFragment extends DialogFragment {
 
                 Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 10, bytes);
 
                 File destination = new File(Environment.getExternalStorageDirectory(),"temp.jpg");
                 FileOutputStream fo;
@@ -245,6 +251,7 @@ public class UploadImageDialogFragment extends DialogFragment {
                 absolutePath = destination.getAbsolutePath();
             Picasso.with(getContext())
                     .load(filePath)
+                    .resize(800,800)
                     .into(photoSelected);
         }
     }

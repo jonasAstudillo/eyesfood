@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +29,15 @@ import com.example.jonsmauricio.eyesfood.data.api.model.*;
 import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
 import com.example.jonsmauricio.eyesfood.data.api.*;
 import com.example.jonsmauricio.eyesfood.R;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInApi;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
@@ -36,11 +47,16 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LoginActivity extends AppCompatActivity implements OnClickListener {
+public class LoginActivity extends AppCompatActivity implements OnClickListener, GoogleApiClient.OnConnectionFailedListener {
+
+    private GoogleApiClient googleApiClient;
+
+    public static final int GMAIL_RESULT_CODE = 777;
 
     Retrofit mRestAdapter;
 
     // UI references.
+    private SignInButton signInButtonGmail;
     private ImageView ivLoginLogo;
     private EditText mUserIdView;
     private EditText mPasswordView;
@@ -51,6 +67,12 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     private EyesFoodApi mEyesFoodApi;
     TextView mSignUp;
     TextView loginProgressText;
+
+    private String nombre;
+    private String apellido;
+    private String correo;
+    private Uri foto;
+    private String fotoString;
 
     //Método que abre la pantalla principal
     private void showHistoryScreen() {
@@ -78,6 +100,15 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
         // Crear conexión al servicio REST
         mRestAdapter = new Retrofit.Builder()
                 .baseUrl(EyesFoodApi.BASE_URL)
@@ -98,6 +129,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         mSignUp = (TextView) findViewById(R.id.link_signup);
         loginProgressText = (TextView) findViewById(R.id.login_progress_text);
 
+        signInButtonGmail = (SignInButton) findViewById(R.id.bt_login_gmail);
+        signInButtonGmail.setSize(SignInButton.SIZE_WIDE);
+        signInButtonGmail.setColorScheme(SignInButton.COLOR_DARK);
+
         //Setup
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -114,6 +149,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             }
         });
 
+        signInButtonGmail.setOnClickListener(this);
         mSignInButton.setOnClickListener(this);
         mSignUp.setOnClickListener(this);
     }
@@ -153,6 +189,14 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             case R.id.link_signup:{
                 startActivity(new Intent(this, SignUpActivity.class));
                 break;
+            }
+            case R.id.bt_login_gmail:{
+                if (!isOnline()) {
+                    showLoginError(getString(R.string.error_network));
+                    return;
+                }
+                Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+                startActivityForResult(intent, GMAIL_RESULT_CODE);
             }
         }
     }
@@ -277,6 +321,89 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         int visibility = show ? View.GONE : View.VISIBLE;
         ivLoginLogo.setVisibility(visibility);
         mLoginFormView.setVisibility(visibility);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == GMAIL_RESULT_CODE){
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSignInResult(result);
+        }
+    }
+
+    private void handleSignInResult(GoogleSignInResult result) {
+        if(result.isSuccess()){
+            // TODO: 06-11-2017 Tomar nombre, apellido y email
+            GoogleSignInAccount account = result.getSignInAccount();
+            //Display name: Nombre completo
+            //ID es gigante con 21 números, entonces lo hago yo
+            nombre = account.getGivenName();
+            apellido = account.getFamilyName();
+            correo = account.getEmail();
+            foto = account.getPhotoUrl();
+            fotoString = "default.png";
+            if(foto != null) {
+                fotoString = foto.toString();
+            }
+
+            //Consulta con el correo para ver si existe la cuenta
+            findGmailUser(correo);
+        }
+        else{
+            Toast.makeText(this, R.string.login_gmail_failed, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void findGmailUser(String email) {
+        Call<User> call = mEyesFoodApi.findGmailUser(new GmailUserBody(email));
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("myTag",nombre + " " + apellido + " " + correo + " " + fotoString);
+                    registerGmailUser(nombre, apellido, correo, fotoString);
+                    return;
+                }
+                Log.d("myTag","Existe");
+                User user = response.body();
+                SessionPrefs.get(LoginActivity.this).saveUser(user);
+                // Ir a la pantalla principal
+                showHistoryScreen();
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("myTag","On failure findGmailUser");
+            }
+        });
+    }
+
+    private void registerGmailUser(String nombre, String apellido, String correo, String fotoString) {
+        Call<User> call = mEyesFoodApi.registerGmailUser(new GmailRegisterBody(nombre, apellido, correo, fotoString));
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("myTag","no succesful");
+                    return;
+                }
+                User user = response.body();
+                SessionPrefs.get(LoginActivity.this).saveUser(user);
+                // Ir a la pantalla principal
+                showHistoryScreen();
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("myTag","failure" + t.getMessage());
+            }
+        });
     }
 }
 

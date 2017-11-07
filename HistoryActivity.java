@@ -457,6 +457,7 @@ public class HistoryActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             SessionPrefs.get(HistoryActivity.this).logOut();
+            finish();
             return true;
         }
 
