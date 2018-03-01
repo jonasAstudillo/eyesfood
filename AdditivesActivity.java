@@ -34,6 +34,7 @@ public class AdditivesActivity extends AppCompatActivity {
 
     private List<Additive> listaAditivos;
     private Food Alimento;
+    private int MeGusta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,7 @@ public class AdditivesActivity extends AppCompatActivity {
 
         if(b != null){
             Alimento = (Food) b.get("Alimento");
+            MeGusta = (int) b.get("MeGusta");
             setTitle(Alimento.getName());
             showAdditives(listaAditivos);
         }
@@ -87,6 +89,7 @@ public class AdditivesActivity extends AppCompatActivity {
             case android.R.id.home:
                 Intent i = new Intent(this, FoodsActivity.class);
                 i.putExtra("Alimento", Alimento);
+                i.putExtra("MeGusta", MeGusta);
                 startActivity(i);
                 return(true);
         }

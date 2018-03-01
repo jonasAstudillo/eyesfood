@@ -3,6 +3,7 @@ package com.example.jonsmauricio.eyesfood.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.BoolRes;
+import android.support.constraint.solver.widgets.Snapshot;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -22,11 +23,17 @@ import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
 import com.example.jonsmauricio.eyesfood.data.api.model.Additive;
 import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.SearchResult;
+import com.example.jonsmauricio.eyesfood.data.api.model.ShortFood;
+import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import org.json.JSONArray;
 import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -53,7 +60,10 @@ public class SearchActivity extends AppCompatActivity {
     TextView searchAdditivesHeader;
     boolean noFoods;
     boolean noAdditives;
-
+    private ShortFood shortFood;
+    private String userIdFinal;
+    private int like;
+    private int flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +81,8 @@ public class SearchActivity extends AppCompatActivity {
         searchFoodsHeader = (TextView) findViewById(R.id.tvSearchFoodsHeader);
         searchAdditivesHeader = (TextView) findViewById(R.id.tvSearchAdditivesHeader);
 
+        userIdFinal = SessionPrefs.get(this).getUserId();
+
         // Crear conexión al servicio REST
         mRestAdapter = new Retrofit.Builder()
                 .baseUrl(EyesFoodApi.BASE_URL)
@@ -86,9 +98,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Food currentSearch = adaptadorFoods.getItem(position);
-                Intent i = new Intent(getApplicationContext(), FoodsActivity.class);
-                i.putExtra("Alimento", currentSearch);
-                startActivity(i);
+                isFoodInHistory(userIdFinal, currentSearch.getBarCode(), currentSearch);
             }
         });
 
@@ -252,5 +262,42 @@ public class SearchActivity extends AppCompatActivity {
             searchEmptyState.setVisibility(View.GONE);
         }
     }
+
+    //Comprueba si el alimento consultado está en el historial del usuario
+    public void isFoodInHistory(String userId, final String barcode, final Food currentSearch){
+        Call<ShortFood> call = mEyesFoodApi.isInHistory(userId, barcode);
+        call.enqueue(new Callback<ShortFood>() {
+            @Override
+            public void onResponse(Call<ShortFood> call,
+                                   Response<ShortFood> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                //El alimento está en el historial
+                shortFood = response.body();
+                like = shortFood.getLike();
+                Log.d("myTag", "antes de show");
+                Log.d("myTag", String.valueOf(like));
+                Log.d("myTag", currentSearch.getName());
+                showFood(like, currentSearch);
+            }
+
+            @Override
+            public void onFailure(Call<ShortFood> call, Throwable t) {
+                //El alimento no está
+                like=0;
+                flag = 1;
+                showFood(like, currentSearch);
+            }
+        });
+    }
+
+    private void showFood(int like, Food currentSearch) {
+        Intent i = new Intent(getApplicationContext(), FoodsActivity.class);
+        i.putExtra("Alimento", currentSearch);
+        i.putExtra("MeGusta", like);
+        startActivity(i);
+    }
+
 
 }

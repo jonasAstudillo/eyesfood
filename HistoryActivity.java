@@ -1,6 +1,7 @@
 package com.example.jonsmauricio.eyesfood.ui;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -25,6 +27,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.jonsmauricio.eyesfood.R;
@@ -34,6 +41,7 @@ import com.example.jonsmauricio.eyesfood.data.api.model.HistoryFoodBody;
 import com.example.jonsmauricio.eyesfood.data.api.model.ShortFood;
 import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
 import com.facebook.login.LoginManager;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -52,7 +60,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HistoryActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnClickListener, ItemClickListener, GoogleApiClient.OnConnectionFailedListener{
+        implements OnClickListener, ItemClickListener, GoogleApiClient.OnConnectionFailedListener{
 
     Retrofit mRestAdapter;
     EyesFoodApi mEyesFoodApi;
@@ -60,22 +68,71 @@ public class HistoryActivity extends AppCompatActivity
     //Obtengo id de Usuario y sesión
     private String userIdFinal;
     private String session;
+    //Bandera para saber si vengo de perfil y empezar la animación
+    int perfil = 0;
+    //Bandera para ver si seteo el título, los últimos tres items no deben setear el título
+    int setTitle;
 
-    //Instancias globales para el Card view
+    //Instancias para el card view
     private RecyclerView recycler;
     private HistoryAdapter adapter;
     private RecyclerView.LayoutManager lManager;
     private List<ShortFood> historial;
 
+    private ProgressBar progressBar;
+    private TextView emptyStateText;
+    private ImageView avatar;
+    private String drawerTitle;
+
     private String barCode;
 
     MaterialSearchView searchView;
     private GoogleApiClient googleApiClient;
+    private FloatingActionButton fab;
+    private FloatingActionsMenu fabProfile;
+    //FAB del menú
+    private com.getbase.floatingactionbutton.FloatingActionButton fabProfileAdd;
+    private com.getbase.floatingactionbutton.FloatingActionButton fabProfileEdit;
+
+    private int like;
+
+    final String baseFotoUsuario = EyesFoodApi.BASE_URL+"img/users/";
+
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_history);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
+        userIdFinal = SessionPrefs.get(this).getUserId();
+        session = SessionPrefs.get(this).getUserSession();
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        //navigationView.setNavigationItemSelectedListener(this);
+
+        recycler = (RecyclerView) findViewById(R.id.reciclador);
+        progressBar = (ProgressBar) findViewById(R.id.pbMainProgress);
+        emptyStateText = (TextView) findViewById(R.id.tvHistoryEmptyState);
+
+        // Crear conexión al servicio REST
+        mRestAdapter = new Retrofit.Builder()
+                .baseUrl(EyesFoodApi.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        // Crear conexión a la API de EyesFood
+        mEyesFoodApi = mRestAdapter.create(EyesFoodApi.class);
+
+        drawerTitle = getResources().getString(R.string.nav_history);
         // Redirección al Login
         if (!SessionPrefs.get(this).isLoggedIn()) {
             startActivity(new Intent(this, LoginActivity.class));
@@ -92,51 +149,59 @@ public class HistoryActivity extends AppCompatActivity
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-        userIdFinal = SessionPrefs.get(this).getUserId();
-        session = SessionPrefs.get(this).getUserSession();
-
-        setContentView(R.layout.activity_history);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         searchView = (MaterialSearchView) findViewById(R.id.search_view);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fabProfile = (FloatingActionsMenu) findViewById(R.id.fabProfile);
+
+        fabProfileAdd = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.fabProfileAdd);
+        fabProfileEdit = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.fabProfileEdit);
 
         fab.setOnClickListener(this);
+        fabProfileAdd.setOnClickListener(this);
+        fabProfileEdit.setOnClickListener(this);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        // Crear conexión al servicio REST
-        mRestAdapter = new Retrofit.Builder()
-                .baseUrl(EyesFoodApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        // Crear conexión a la API de EyesFood
-        mEyesFoodApi = mRestAdapter.create(EyesFoodApi.class);
+        if (navigationView != null) {
+            setupDrawerContent(navigationView);
+        }
+        if (savedInstanceState == null) {
+            selectItem(drawerTitle);
+        }
     }
 
     //Método de actualización
-    // TODO: 19-10-2017 Cuando hayan más listas filtrar según la lista que esté viendo 
-    @Override
+    /*@Override
     protected void onResume() {
         super.onResume();
-
-        loadHistoryFoods(userIdFinal);
-    }
+    }*/
 
     //Carga alimentos en el historial
     //UserId: Id de usuario
     // TODO: 19-10-2017 Cuando haya más listas los métodos son iguales a este
-    public void loadHistoryFoods(String userId) {
+    public void loadHistoryFoods(String userId, String title) {
+        //Hacer el if según el título
+        if(title.equals(getResources().getString(R.string.nav_history))){
+            //Llama a la función que carga el historial de escaneo
+            Log.d("myTag","1");
+            loadScan(userId);
+        }
+        else if(title.equals(getResources().getString(R.string.nav_uploads))){
+            //Llama a la función que carga el historial de subidos
+            loadUploads(userId);
+        }
+        else if(title.equals(getResources().getString(R.string.nav_favorites))){
+            //Llama a la función que carga los destacados
+            loadFavorites(userId);
+        }
+        //Rechazados
+        else{
+            //Llama a la función que carga los rechazados
+            loadRejected(userId);
+        }
+    }
+
+    public void loadScan(String userId){
+        Log.d("myTag","En load Scan");
         Call<List<ShortFood>> call = mEyesFoodApi.getFoodsInHistory(userId);
         call.enqueue(new Callback<List<ShortFood>>() {
             @Override
@@ -144,8 +209,79 @@ public class HistoryActivity extends AppCompatActivity
                                    Response<List<ShortFood>> response) {
                 if (!response.isSuccessful()) {
                     // TODO: Procesar error de API
+                    Log.d("myTag", "hola"+response.errorBody().toString());
                     return;
                 }
+
+                historial = response.body();
+                showHistory(historial);
+            }
+
+            @Override
+            public void onFailure(Call<List<ShortFood>> call, Throwable t) {
+                Log.d("Falla", "Falla en la llamada a historial: loadHistoryFoods"+t.getMessage());
+            }
+        });
+    }
+
+    public void loadUploads(String userId){
+        Call<List<ShortFood>> call = mEyesFoodApi.getFoodsUploads(userId);
+        call.enqueue(new Callback<List<ShortFood>>() {
+            @Override
+            public void onResponse(Call<List<ShortFood>> call,
+                                   Response<List<ShortFood>> response) {
+                if (!response.isSuccessful()) {
+                    // TODO: Procesar error de API
+                    Log.d("myTag", "hola");
+                    return;
+                }
+
+                historial = response.body();
+                showHistory(historial);
+            }
+
+            @Override
+            public void onFailure(Call<List<ShortFood>> call, Throwable t) {
+                Log.d("Falla", "Falla en la llamada a historial: loadHistoryFoods");
+            }
+        });
+    }
+
+    public void loadFavorites(String userId){
+        Call<List<ShortFood>> call = mEyesFoodApi.getFoodsFavorites(userId);
+        call.enqueue(new Callback<List<ShortFood>>() {
+            @Override
+            public void onResponse(Call<List<ShortFood>> call,
+                                   Response<List<ShortFood>> response) {
+                if (!response.isSuccessful()) {
+                    // TODO: Procesar error de API
+                    Log.d("myTag", "hola");
+                    return;
+                }
+
+                historial = response.body();
+                showHistory(historial);
+            }
+
+            @Override
+            public void onFailure(Call<List<ShortFood>> call, Throwable t) {
+                Log.d("Falla", "Falla en la llamada a historial: loadHistoryFoods");
+            }
+        });
+    }
+
+    public void loadRejected(String userId){
+        Call<List<ShortFood>> call = mEyesFoodApi.getFoodsRejected(userId);
+        call.enqueue(new Callback<List<ShortFood>>() {
+            @Override
+            public void onResponse(Call<List<ShortFood>> call,
+                                   Response<List<ShortFood>> response) {
+                if (!response.isSuccessful()) {
+                    // TODO: Procesar error de API
+                    Log.d("myTag", "hola");
+                    return;
+                }
+
                 historial = response.body();
                 showHistory(historial);
             }
@@ -161,7 +297,15 @@ public class HistoryActivity extends AppCompatActivity
     //historial: Lista de alimentos en el historial
     public void showHistory(List<ShortFood> historial) {
 
+        /*if(historial.isEmpty()){
+            showEmptyState(true);
+            showProgress(false);
+            return;
+        }
+
+        showEmptyState(false);*/
         // Obtener el Recycler
+        // TODO: 20-11-2017 Aquí lo obtengo pero ya está obtenido en onCreate
         recycler = (RecyclerView) findViewById(R.id.reciclador);
         recycler.setHasFixedSize(true);
 
@@ -170,16 +314,16 @@ public class HistoryActivity extends AppCompatActivity
         recycler.setLayoutManager(lManager);
 
         //Crear un nuevo adaptador
-        adapter = new HistoryAdapter(historial);
+        adapter = new HistoryAdapter(historial, this);
         recycler.setAdapter(adapter);
         adapter.setClickListener(this);
+        showProgress(false,"");
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab:{
-
                 //Si no hay permiso se pide
                 if (ContextCompat.checkSelfPermission(HistoryActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HistoryActivity.this, new String[]{Manifest.permission.CAMERA}, 1);
@@ -193,6 +337,14 @@ public class HistoryActivity extends AppCompatActivity
                 }
                 break;
             }
+            case R.id.fabProfileAdd:{
+                showSelectedDialog(2);
+                break;
+            }
+            case R.id.fabProfileEdit:{
+                showSelectedDialog(3);
+                break;
+            }
         }
     }
 
@@ -201,6 +353,7 @@ public class HistoryActivity extends AppCompatActivity
     @Override
     public void onClick(View view, int position) {
         ShortFood food = historial.get(position);
+        like = food.getLike();
         loadFoodsFromHistory(food.getBarCode());
     }
 
@@ -245,9 +398,8 @@ public class HistoryActivity extends AppCompatActivity
                 //Si entro acá el alimento existe en la BD y lo obtengo
                 Food resultado = response.body();
                 //Veo si está en el historial
-                isFoodInHistory(userIdFinal, resultado.getBarCode());
-
-                showFoodsScreen(resultado);
+                isFoodInHistory(userIdFinal, resultado);
+                //Obtengo el like
             }
 
             @Override
@@ -299,6 +451,7 @@ public class HistoryActivity extends AppCompatActivity
     public void showFoodsScreen(Food resultado){
         Intent i = new Intent(this, FoodsActivity.class);
         i.putExtra("Alimento",resultado);
+        i.putExtra("MeGusta",like);
         startActivity(i);
     }
 
@@ -343,7 +496,15 @@ public class HistoryActivity extends AppCompatActivity
             //Si obtiene el código
             if (resultCode == RESULT_OK) {
                 barCode = intent.getStringExtra("SCAN_RESULT");
-                loadFoods(barCode);
+                Log.d("myTag","Barcode = "+barCode);
+                if(barCode.equals("016861788322")){
+                    Toast.makeText(this, "HOLA", Toast.LENGTH_LONG).show();
+                    Intent i = new Intent(this, AnniversaryActivity.class);
+                    startActivity(i);
+                }
+                else {
+                    loadFoods(barCode);
+                }
             }
             //Si no obtiene el código
             else if (resultCode == RESULT_CANCELED) {
@@ -354,10 +515,9 @@ public class HistoryActivity extends AppCompatActivity
         }
     }
 
-    //TODO: Este método tiene problemas, no actualiza en servidor remoto, está mal el final?
     //Comprueba si el alimento consultado está en el historial del usuario
-    public void isFoodInHistory(String userId, final String barcode){
-        Call<ShortFood> call = mEyesFoodApi.isInHistory(userId, barcode);
+    public void isFoodInHistory(String userId, final Food alimento){
+        Call<ShortFood> call = mEyesFoodApi.isInHistory(userId, alimento.getBarCode());
         call.enqueue(new Callback<ShortFood>() {
             @Override
             public void onResponse(Call<ShortFood> call,
@@ -365,17 +525,28 @@ public class HistoryActivity extends AppCompatActivity
                 if (!response.isSuccessful()) {
                     return;
                 }
-                //El alimento está en el historial y lo actualizo
-                updateHistory(userIdFinal, barcode);
+                //El alimento está en el historial
+                //El alimento no está en ninguna lista, lista = 0, lo inserto
+                if(response.body().getList() == 0){
+                    //Actualizar a 1 el escaneo
+                    modifyScan(userIdFinal, alimento.getBarCode());
+                }
+                //El alimento está en la lista de escaneo o en escaneo y subidos
+                else{
+                    updateHistory(userIdFinal, alimento.getBarCode());
+                }
+                ShortFood shortFood = response.body();
+                like = shortFood.getLike();
+                showFoodsScreen(alimento);
+
             }
 
             @Override
             public void onFailure(Call<ShortFood> call, Throwable t) {
                 //El alimento no está y lo inserto
-                insertFood(userIdFinal, barcode);
+                insertFood(userIdFinal, alimento.getBarCode());
             }
         });
-
     }
 
     //Inserta un alimento en el historial
@@ -399,6 +570,27 @@ public class HistoryActivity extends AppCompatActivity
         });
     }
 
+    //Modifica la bandera del escaneo
+    public void modifyScan(String userId, String barcode){
+        Call<ShortFood> call = mEyesFoodApi.modifyHistoryScan(userId, barcode);
+        call.enqueue(new Callback<ShortFood>() {
+            @Override
+            public void onResponse(Call<ShortFood> call, Response<ShortFood> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                else {
+                    Log.d("myTag", "Éxito en modifyScan");
+                }
+            }
+            @Override
+            public void onFailure(Call<ShortFood> call, Throwable t) {
+                Log.d("myTag", "Fallo en modifyScan " + t.getMessage());
+                return;
+            }
+        });
+    }
+
     //Actualiza la fecha de un alimento en el historial
     public void updateHistory(String userId, String barcode){
         Call<ShortFood> call = mEyesFoodApi.modifyHistory(userId, barcode);
@@ -406,6 +598,7 @@ public class HistoryActivity extends AppCompatActivity
             @Override
             public void onResponse(Call<ShortFood> call, Response<ShortFood> response) {
                 if (!response.isSuccessful()) {
+                    Log.d("myTag", "no Éxito en updateHistory " + response.errorBody());
                     return;
                 }
                 else {
@@ -414,7 +607,7 @@ public class HistoryActivity extends AppCompatActivity
             }
             @Override
             public void onFailure(Call<ShortFood> call, Throwable t) {
-                Log.d("myTag", "Fallo en updateHistory");
+                Log.d("myTag", "Fallo en updateHistory "+ t.getMessage());
                 return;
             }
         });
@@ -499,19 +692,21 @@ public class HistoryActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+    /*@SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+        if (id == R.id.bt_nav_history) {
+            drawerSelection = 1;
+        } else if (id == R.id.bt_nav_upload) {
+            drawerSelection = 2;
+        } else if (id == R.id.bt_nav_favorite) {
+            drawerSelection = 3;
+        } else if (id == R.id.bt_nav_rejected) {
+            drawerSelection = 4;
+        } else if (id == R.id.bt_nav_profile) {
 
         } else if (id == R.id.nav_share) {
 
@@ -522,10 +717,280 @@ public class HistoryActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }*/
+
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // Marcar item presionado
+                            //menuItem.setChecked(true);
+                        // Crear nuevo fragmento
+                        String title = menuItem.getTitle().toString();
+                        selectItem(title);
+                        return true;
+                    }
+                }
+        );
+    }
+
+    private void selectItem(String title) {
+        //Lo esconde el profile así que aquí lo reestablezco
+        fab.setVisibility(View.VISIBLE);
+        fabProfile.collapse();
+        fabProfile.setVisibility(View.GONE);
+        showProgress(true,"");
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment, fragmentHelp, fragmentExpert;
+        // Enviar título como arguemento del fragmento
+        if(title.equals(getResources().getString(R.string.nav_profile))){
+            fab.setVisibility(View.GONE);
+            fabProfile.setVisibility(View.VISIBLE);
+            animateFabMenu(fabProfile);
+            setTitle = 1;
+            perfil = 1;
+            showProgress(false,"PERFIL");
+            Bundle args = new Bundle();
+            args.putString(ProfileFragment.ARG_SECTION_TITLE, title);
+
+            Fragment fragmentProfile = ProfileFragment.newInstance(title);
+            fragmentProfile.setArguments(args);
+
+            fragmentManager
+                    .beginTransaction()
+                    .replace(R.id.llMainActivity, fragmentProfile, "fragmento_perfil")
+                    .commit();
+        }
+        else if(title.equals(getResources().getString(R.string.nav_experts))){
+            showSelectedDialog(0);
+            //Si vengo del perfil oculto el recycler
+            if (perfil == 1) {
+                showProgress(false,"PERFIL");
+                fab.setVisibility(View.GONE);
+                fabProfile.setVisibility(View.VISIBLE);
+            }
+            else{
+                showProgress(false,"");
+            }
+            setTitle = 0;
+        }
+        else if(title.equals(getResources().getString(R.string.nav_settings))){
+            setTitle = 0;
+        }
+        else if(title.equals(getResources().getString(R.string.nav_help))){
+            showSelectedDialog(1);
+            //Si vengo del perfil oculto el recycler y muestro el fab correspondiente
+            if (perfil == 1) {
+                showProgress(false,"PERFIL");
+                fab.setVisibility(View.GONE);
+                fabProfile.setVisibility(View.VISIBLE);
+            }
+            else{
+                showProgress(false,"");
+            }
+            setTitle = 0;
+        }
+        else{
+            if(perfil == 1){
+                //Si vengo de perfil animo el fab
+                animateFab(fab);
+                perfil = 0;
+            }
+            setTitle = 1;
+            //Llamar a show foods con otros argumentos
+            fragment = fragmentManager.findFragmentByTag("fragmento_perfil");
+            fragmentExpert = fragmentManager.findFragmentByTag("fragmento_expertos");
+            fragmentHelp = fragmentManager.findFragmentByTag("fragmento_ayuda");
+
+            //Si está el fragmento del perfil se elimina
+            if(fragment != null){
+                Log.d("fragmento","Está el perfil");
+                fragmentManager.beginTransaction().remove(fragment).commit();
+            }
+            if(fragmentExpert != null){
+                Log.d("fragmento","Está expertos");
+                fragmentManager.beginTransaction().remove(fragmentExpert).commit();
+            }
+            if(fragmentHelp != null){
+                Log.d("fragmento","Está ayudas");
+                fragmentManager.beginTransaction().remove(fragmentHelp).commit();
+            }
+            //Si no está se hacen las llamadas sin eliminar nada
+            //Este se llama con el título de la vista para seleccionar la lista
+            loadHistoryFoods(userIdFinal, title);
+        }
+        if(setTitle == 1) {
+            // Setear título actual
+            // TODO: 23-11-2017 toolbar.setTitle no funcionaba la primera vez que entraba a la aplicación
+            setTitle(title);
+            toolbar.setTitle(title);
+        }
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    private void showProgress(boolean show, String bandera) {
+        if(show) {
+            progressBar.setVisibility(View.VISIBLE);
+            recycler.setVisibility(View.GONE);
+        }
+        else{
+            if(bandera.equals("PERFIL")){
+                progressBar.setVisibility(View.GONE);
+            }
+            else{
+                progressBar.setVisibility(View.GONE);
+                recycler.setVisibility(View.VISIBLE);
+            }
+
+        }
+    }
+
+    private void showEmptyState(boolean show){
+        if(show){
+            emptyStateText.setVisibility(View.VISIBLE);
+            recycler.setVisibility(View.GONE);
+        }
+        else{
+            emptyStateText.setVisibility(View.GONE);
+            recycler.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showSelectedDialog(int seleccion){
+        //Bundle bundle = new Bundle();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        ExpertsFragment expertsFragment = new ExpertsFragment();
+        HelpFragment helpFragment = new HelpFragment();
+
+        NewMeasureFragment newMeasureFragment = new NewMeasureFragment();
+        EditMeasureFragment editMeasureFragment = new EditMeasureFragment();
+        //expertsFragment.setArguments(bundle);
+        //newFragmentUpload.setArguments(bundle);
+
+
+        // The device is smaller, so show the fragment fullscreen
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        // For a little polish, specify a transition animation
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        // To make it fullscreen, use the 'content' root view as the container
+        // for the fragment, which is always the root view for the activity
+        //transaction.add(android.R.id.content, newFragment).addToBackStack(null).commit();
+        /*transaction.add(android.R.id.content, expertsFragment, "fragmento_expertos").addToBackStack(null);
+        transaction.add(android.R.id.content, helpFragment, "fragmento_ayuda").addToBackStack(null);*/
+
+        if(seleccion == 0){
+            //transaction.replace(android.R.id.content, expertsFragment);
+            transaction.add(android.R.id.content, expertsFragment, "fragmento_expertos").addToBackStack(null);
+        }
+        else if (seleccion ==1){
+            //transaction.replace(android.R.id.content, helpFragment);
+            transaction.add(android.R.id.content, helpFragment, "fragmento_ayuda").addToBackStack(null);
+        }
+        else if (seleccion ==2){
+            //transaction.replace(android.R.id.content, helpFragment);
+            transaction.add(android.R.id.content, newMeasureFragment, "fragmento_nueva_medida").addToBackStack(null);
+        }
+        else if (seleccion ==3){
+            //transaction.replace(android.R.id.content, helpFragment);
+            transaction.add(android.R.id.content, editMeasureFragment, "fragmento_editar_medida").addToBackStack(null);
+        }
+        transaction.commit();
+    }
+
+    private void animateFab(final FloatingActionButton fab) {
+        fab.setScaleX(0);
+        fab.setScaleY(0);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            final Interpolator interpolador = AnimationUtils.loadInterpolator(getBaseContext(),
+                    android.R.interpolator.overshoot);
+
+            fab.animate()
+                    .scaleX(1)
+                    .scaleY(1)
+                    .setInterpolator(interpolador)
+                    .setDuration(600)
+                    .setStartDelay(400)
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            fab.animate()
+                                    .scaleY(1)
+                                    .scaleX(1)
+                                    .setInterpolator(interpolador)
+                                    .setDuration(600)
+                                    .start();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    });
+        }
+    }
+
+    private void animateFabMenu(final FloatingActionsMenu fab){
+        fab.setScaleX(0);
+        fab.setScaleY(0);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            final Interpolator interpolador = AnimationUtils.loadInterpolator(getBaseContext(),
+                    android.R.interpolator.overshoot);
+
+            fab.animate()
+                    .scaleX(1)
+                    .scaleY(1)
+                    .setInterpolator(interpolador)
+                    .setDuration(600)
+                    .setStartDelay(400)
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            fab.animate()
+                                    .scaleY(1)
+                                    .scaleX(1)
+                                    .setInterpolator(interpolador)
+                                    .setDuration(600)
+                                    .start();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    });
+        }
     }
 }

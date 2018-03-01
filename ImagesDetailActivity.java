@@ -29,6 +29,7 @@ public class ImagesDetailActivity extends AppCompatActivity {
     private int indiceActual;
     ArrayList<FoodImage> listaImagenes = new ArrayList<FoodImage>();
     private Food Alimento;
+    private int MeGusta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +49,7 @@ public class ImagesDetailActivity extends AppCompatActivity {
         if(b != null){
             indiceActual = (int) b.get("indice");
             Alimento = (Food) b.get("Alimento");
+            MeGusta = (int) b.get("MeGusta");
             setTitle(Alimento.getName());
         }
 
@@ -103,6 +105,7 @@ public class ImagesDetailActivity extends AppCompatActivity {
                 intent.putExtra("BUNDLE",args);
 
                 intent.putExtra("Alimento", Alimento);
+                intent.putExtra("MeGusta", MeGusta);
                 startActivity(intent);
                 return(true);
         }

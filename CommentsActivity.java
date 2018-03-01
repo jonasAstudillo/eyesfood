@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.service.textservice.SpellCheckerService;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -61,6 +62,8 @@ public class CommentsActivity extends AppCompatActivity {
     Retrofit mRestAdapter;
     EyesFoodApi mEyesFoodApi;
 
+    private int MeGusta;
+
     final String baseFotoUsuario = EyesFoodApi.BASE_URL+"img/users/";
 
     @Override
@@ -108,6 +111,7 @@ public class CommentsActivity extends AppCompatActivity {
 
         if(b != null){
             Alimento = (Food) b.get("Alimento");
+            MeGusta = (int) b.get("MeGusta");
             setTitle(Alimento.getName());
             CodigoBarras = Alimento.getBarCode();
         }
@@ -211,6 +215,7 @@ public class CommentsActivity extends AppCompatActivity {
             case android.R.id.home:
                 Intent i = new Intent(this, FoodsActivity.class);
                 i.putExtra("Alimento", Alimento);
+                i.putExtra("MeGusta", MeGusta);
                 startActivity(i);
                 return(true);
         }

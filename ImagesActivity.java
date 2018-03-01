@@ -34,7 +34,7 @@ public class ImagesActivity extends AppCompatActivity implements AdapterView.OnI
     private Food Alimento;
     private GridView gridView;
     private ImagesAdapter adapter;
-
+    private int MeGusta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,7 @@ public class ImagesActivity extends AppCompatActivity implements AdapterView.OnI
 
         if(b != null){
             Alimento = (Food) b.get("Alimento");
+            MeGusta = (int) b.get("MeGusta");
             setTitle(Alimento.getName());
             showImages(listaImagenes);
         }
@@ -77,6 +78,7 @@ public class ImagesActivity extends AppCompatActivity implements AdapterView.OnI
         intent.putExtra("BUNDLE",args);
 
         intent.putExtra("Alimento", Alimento);
+        intent.putExtra("MeGusta", MeGusta);
         intent.putExtra("indice",i);
         startActivity(intent);
     }
@@ -87,6 +89,7 @@ public class ImagesActivity extends AppCompatActivity implements AdapterView.OnI
             case android.R.id.home:
                 Intent i = new Intent(this, FoodsActivity.class);
                 i.putExtra("Alimento", Alimento);
+                i.putExtra("MeGusta", MeGusta);
                 startActivity(i);
                 return(true);
         }

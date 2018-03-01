@@ -23,6 +23,7 @@ public class RecommendationsActivity extends AppCompatActivity{
     private RecyclerView.LayoutManager lManager;
 
     private Food Alimento;
+    private int MeGusta;
     private ArrayList<Recommendation> recommendations;
 
 
@@ -43,6 +44,7 @@ public class RecommendationsActivity extends AppCompatActivity{
 
         if(b != null){
             Alimento = (Food) b.get("Alimento");
+            MeGusta = (int) b.get("MeGusta");
             setTitle(Alimento.getName());
         }
     }
@@ -84,6 +86,7 @@ public class RecommendationsActivity extends AppCompatActivity{
             case android.R.id.home:
                 Intent i = new Intent(this, FoodsActivity.class);
                 i.putExtra("Alimento", Alimento);
+                i.putExtra("MeGusta", MeGusta);
                 startActivity(i);
                 return(true);
         }

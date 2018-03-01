@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +12,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,16 +30,22 @@ import com.example.jonsmauricio.eyesfood.R;
 import com.example.jonsmauricio.eyesfood.data.api.EyesFoodApi;
 import com.example.jonsmauricio.eyesfood.data.api.model.Additive;
 import com.example.jonsmauricio.eyesfood.data.api.model.Comment;
+import com.example.jonsmauricio.eyesfood.data.api.model.Counter;
 import com.example.jonsmauricio.eyesfood.data.api.model.Food;
 import com.example.jonsmauricio.eyesfood.data.api.model.FoodImage;
+import com.example.jonsmauricio.eyesfood.data.api.model.HistoryFoodBody;
 import com.example.jonsmauricio.eyesfood.data.api.model.Ingredient;
+import com.example.jonsmauricio.eyesfood.data.api.model.InsertFromLikeBody;
 import com.example.jonsmauricio.eyesfood.data.api.model.Recommendation;
+import com.example.jonsmauricio.eyesfood.data.api.model.ShortFood;
+import com.example.jonsmauricio.eyesfood.data.prefs.SessionPrefs;
 import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,8 +56,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
     Clase controladora de la actividad de alimentos
 */
 
-// TODO: 19-10-2017 Hacer la vista de info nutricional 
-// TODO: 19-10-2017 Ver si hay que hacerlo con fragments
+// TODO: 16-11-2017 Ver el color de los botones no presionados
 
 public class FoodsActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -65,9 +72,10 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
 
     String CodigoBarras;
     RatingBar infoGeneralRating;
+    private String userIdFinal;
 
     //Para los botonos
-    Button additives, recommendations, images;
+    Button additives, recommendations, images, like, dislike;
 
     private List<Ingredient> listaIngredientes;
     private List<Ingredient> listaAditivos;
@@ -81,6 +89,12 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
     private EyesFoodApi mEyesFoodApi;
 
     private Food Alimento;
+    private int MeGusta;
+
+    private Counter likesCounter;
+    private int likesCount;
+    private Counter dislikesCounter;
+    private int dislikesCount;
 
     //Permissions
     private static final int PERMISSION_CODE = 123;
@@ -148,13 +162,19 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
         additives = (Button) findViewById(R.id.btFoodsAdditives);
         recommendations = (Button) findViewById(R.id.btFoodsRecommendations);
         images = (Button) findViewById(R.id.btFoodsImages);
+        like = (Button) findViewById(R.id.btFoodsLike);
+        dislike = (Button) findViewById(R.id.btFoodsDisLike);
 
         additives.setOnClickListener(this);
         recommendations.setOnClickListener(this);
         images.setOnClickListener(this);
+        like.setOnClickListener(this);
+        dislike.setOnClickListener(this);
 
         ivFoodPhoto = (ImageView) findViewById(R.id.image_paralax);
         final CollapsingToolbarLayout collapser = (CollapsingToolbarLayout) findViewById(R.id.collapser);
+
+        userIdFinal = SessionPrefs.get(this).getUserId();
 
         // Crear conexión al servicio REST
         mRestAdapter = new Retrofit.Builder()
@@ -175,9 +195,21 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             collapser.setTitle(Alimento.getName()); // Cambiar título
             //setTitle(Nombre);
             CodigoBarras = Alimento.getBarCode();
+            MeGusta = (int) b.get("MeGusta");
+            Log.d("myTag","Like: "+MeGusta);
             showFood(Alimento);
             showNutritionFacts(Alimento);
             loadIngredients(CodigoBarras);
+        }
+
+        getLikesCount(CodigoBarras, like);
+        getDisLikesCount(CodigoBarras, dislike);
+
+        if(MeGusta == 1) {
+            like.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+        }
+        else if(MeGusta == 2){
+            dislike.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
         }
     }
 
@@ -376,6 +408,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             intent.putExtra("BUNDLE",args);
 
             intent.putExtra("Alimento",Alimento);
+            intent.putExtra("MeGusta",MeGusta);
             startActivity(intent);
         }
         else{
@@ -412,6 +445,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             intent.putExtra("BUNDLE",args);
 
             intent.putExtra("Alimento",Alimento);
+            intent.putExtra("MeGusta",MeGusta);
             startActivity(intent);
         }
         else{
@@ -447,6 +481,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             intent.putExtra("BUNDLE",args);
 
             intent.putExtra("Alimento",Alimento);
+            intent.putExtra("MeGusta",MeGusta);
             startActivity(intent);
         }
         else{
@@ -481,6 +516,7 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             intent.putExtra("BUNDLE",args);
 
             intent.putExtra("Alimento",Alimento);
+            intent.putExtra("MeGusta",MeGusta);
             startActivity(intent);
     }
 
@@ -509,6 +545,69 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             }
             case R.id.btFoodsImages: {
                 loadImages(CodigoBarras);
+                break;
+            }
+            case R.id.btFoodsLike: {
+                Log.d("myTag",String.valueOf(MeGusta));
+                if(MeGusta == 2){
+                    //Si es 2 cambio el color a normal al dislike, acento para like
+                    dislike.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.button_not_pressed, null));
+                    dislikesCount--;
+                    dislike.setText(String.valueOf(dislikesCount));
+                    //dislike.setBackgroundResource(android.R.drawable.btn_default);
+                    like.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+                    likesCount++;
+                    like.setText(String.valueOf(likesCount));
+                    MeGusta = 1;
+                    //Hacer patch
+                }
+                else if(MeGusta == 1){
+                    //Si es 1 cambio el color a normal al like
+                    like.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.button_not_pressed, null));
+                    likesCount--;
+                    like.setText(String.valueOf(likesCount));
+                    MeGusta=0;
+                    //Hacer patch
+                }
+                else{
+                    //Si es 0 cambio el color a acento a like
+                    like.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+                    likesCount++;
+                    like.setText(String.valueOf(likesCount));
+                    MeGusta = 1;
+                }
+                //Veo si está en el historial
+                isFoodInHistory(userIdFinal, CodigoBarras);
+                break;
+            }
+            case R.id.btFoodsDisLike: {
+                Log.d("myTag",String.valueOf(MeGusta));
+                if(MeGusta == 2){
+                    dislike.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.button_not_pressed, null));
+                    dislikesCount--;
+                    dislike.setText(String.valueOf(dislikesCount));
+                    MeGusta = 0;
+                    //Hacer patch
+                }
+                else if(MeGusta == 1){
+                    like.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.button_not_pressed, null));
+                    likesCount--;
+                    like.setText(String.valueOf(likesCount));
+                    dislike.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+                    dislikesCount++;
+                    dislike.setText(String.valueOf(dislikesCount));
+                    MeGusta = 2;
+                    //Hacer patch
+                }
+                else{
+                    //Si es 0 cambio el color a acento a like
+                    dislike.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+                    dislikesCount++;
+                    dislike.setText(String.valueOf(dislikesCount));
+                    MeGusta = 2;
+                }
+                //Veo si está en el historial
+                isFoodInHistory(userIdFinal, CodigoBarras);
                 break;
             }
         }
@@ -631,5 +730,124 @@ public class FoodsActivity extends AppCompatActivity implements View.OnClickList
             transaction.replace(android.R.id.content, newFragmentUpload);
         }
         transaction.commit();
+    }
+
+    //Actualiza los me gusta del alimento
+    public void getLikesCount(String barcode, final Button likes){
+        Call<Counter> call = mEyesFoodApi.getLikes(barcode);
+        call.enqueue(new Callback<Counter>() {
+            @Override
+            public void onResponse(Call<Counter> call, Response<Counter> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("myTag", "no Éxito en getLikes " + response.errorBody().toString());
+                    return;
+                }
+                else {
+                    likesCounter = response.body();
+                    likesCount = likesCounter.getCount();
+                    likes.setText(String.valueOf(likesCount));
+                }
+            }
+            @Override
+            public void onFailure(Call<Counter> call, Throwable t) {
+                Log.d("myTag", "Fallo en getLikes "+ t.getMessage() + " " + t.getLocalizedMessage());
+                t.printStackTrace();
+                return;
+            }
+        });
+    }
+
+    //Actualiza los me gusta del alimento
+    public void getDisLikesCount(String barcode, final Button dislikes){
+
+        Call<Counter> call = mEyesFoodApi.getDislikes(barcode);
+        call.enqueue(new Callback<Counter>() {
+            @Override
+            public void onResponse(Call<Counter> call, Response<Counter> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("myTag", "no Éxito en getDisLikes " + response.errorBody().toString());
+                    return;
+                }
+                else {
+                    dislikesCounter = response.body();
+                    dislikesCount = dislikesCounter.getCount();
+                    dislikes.setText(String.valueOf(dislikesCount));
+                }
+            }
+            @Override
+            public void onFailure(Call<Counter> call, Throwable t) {
+                Log.d("myTag", "Fallo en getDisLikes "+ t.getMessage() + " " + t.getLocalizedMessage());
+                t.printStackTrace();
+                return;
+            }
+        });
+    }
+
+    //Actualiza los me gusta del alimento
+    public void updateLikeHistory(String userId, final String barcode, int like){
+        Call<ShortFood> call = mEyesFoodApi.modifyHistoryLike(userId, barcode, like);
+        call.enqueue(new Callback<ShortFood>() {
+            @Override
+            public void onResponse(Call<ShortFood> call, Response<ShortFood> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("myTag", "no Éxito en updateLikeHistory " + response.errorBody().toString());
+                    return;
+                }
+                else {
+                    Log.d("myTag", "Éxito en updateLikeHistory");
+                }
+            }
+            @Override
+            public void onFailure(Call<ShortFood> call, Throwable t) {
+                Log.d("myTag", "Fallo en updateLikeHistory "+ t.getMessage() + " " + t.getLocalizedMessage());
+                t.printStackTrace();
+                return;
+            }
+        });
+    }
+
+    //Comprueba si el alimento consultado está en el historial del usuario
+    public void isFoodInHistory(final String userId, final String barcode){
+        Call<ShortFood> call = mEyesFoodApi.isInHistory(userId, barcode);
+        call.enqueue(new Callback<ShortFood>() {
+            @Override
+            public void onResponse(Call<ShortFood> call,
+                                   Response<ShortFood> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("myTag","NO EXITOSO");
+                    return;
+                }
+                //El alimento está en el historial
+                Log.d("myTag","ESTÁ");
+                updateLikeHistory(userIdFinal, CodigoBarras, MeGusta);
+            }
+
+            @Override
+            public void onFailure(Call<ShortFood> call, Throwable t) {
+                //El alimento no está y lo inserto
+                Log.d("myTag","NO ESTÁ");
+                insertNoScan(userIdFinal, CodigoBarras);
+            }
+        });
+    }
+
+    private void insertNoScan(String userIdFinal, String codigoBarras) {
+        Call<Food> call = mEyesFoodApi.insertNoScan(new InsertFromLikeBody(userIdFinal, codigoBarras, MeGusta));
+        call.enqueue(new Callback<Food>() {
+            @Override
+            public void onResponse(Call<Food> call, Response<Food> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                else {
+                    Log.d("myTag", "Éxito en insertFood");
+                }
+            }
+            @Override
+            public void onFailure(Call<Food> call, Throwable t) {
+                Log.d("myTag", "Fallo en insertFood " + t.getMessage());
+                return;
+            }
+        });
     }
 }
