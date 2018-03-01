@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.jonsmauricio.eyesfood.ui.AnniversaryActivity"
+    tools:showIn="@layout/activity_anniversary">
+
+<RelativeLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:id="@+id/llAnniversaryAbove"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_favorite_border_black_24dp"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_favorite_border_black_24dp"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_favorite_border_black_24dp"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_favorite_border_black_24dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvAnniversaryTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:text="FELICES 8 AÑOS"
+        android:gravity="center_horizontal"
+        android:padding="16dp"
+        android:layout_below="@+id/llAnniversaryAbove"/>
+
+    <ImageView
+        android:id="@+id/ivAnniversaryImage"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:src="@drawable/aniversario"
+        android:scaleType="centerInside"
+        android:layout_below="@id/tvAnniversaryTitle"/>
+
+    <TextView
+        android:id="@+id/tvAnniversaryBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Y ya hemos cumplido un añito más, pensar que te conocí de 17 años y ya estás bien grande y cada día mejor, como el vino. Quizás este fue el año más difícil de todos los que hemos tenido, pero creo que también nos ayudó a crecer como pareja y a volvernos más indestructibles todavía. Este año hemos hecho tantas cosas juntos, cualquiera puede pensar que después de 8 años ya nada es nuevo, que ya es todo rutina pero no, contigo puedo hacer lo que sea y se transforma en un momento que nunca voy a olvidar. Con el tiempo nos hemos afianzado más y por mi parte siento que cada día te amo más, espero que tu también sientas algo parecido, porque no me imagino la vida sin ti. Eres mi primer y único amor y pocas personas en el mundo pueden tener la suerte y la felicidad de encontrar a la persona indicada a la primera, porque yo se que tu eres la persona con la que quiero pasar el resto de mi vida, no puede ser de otra manera porque sólo contigo puedo expresarme y mostrarme tal como soy. Quizás lo que yo te doy ni se compara con lo que tu me entregas cada día, pero a cada minuto trato de ser mejor para ti, para que tengas lo mejor y que nunca te falte amor en tu vida. Jamás olvidaré todo lo que hemos hecho juntos y todos los momentos felices que he pasado junto a ti. Pero tampoco olvidaré que nos queda muchos muchos más momentos que vivir, lugares que visitar y sonrisas que dibujar. También se que algunos de esos momentos no van a ser como los esperamos pero lo bueno es que nos tenemos el uno al otro para mantenernos de pie y con esperanza, porque lo único que siento que no nos pueden arrebatar es el amor que hemos construido en todo este tiempo. Así que feliz aniversario amor y se nos vienen muchos más y cada uno será mejor que el anterior. Te amo muchísimo mi vida, infinito."
+        android:padding="16dp"
+        android:layout_below="@id/ivAnniversaryImage"/>
+
+    <TextView
+        android:id="@+id/tvAnniversaryLyric"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Am I still here?\nThis wonderful feeling\nAm I still alive?\nThis wonderful feeling..."
+        android:textAlignment="center"
+        android:padding="16dp"
+        android:layout_below="@id/tvAnniversaryBody"/>
+
+    <LinearLayout
+        android:id="@+id/llAnniversaryBelow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:layout_below="@+id/tvAnniversaryLyric">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_favorite_border_black_24dp"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_favorite_border_black_24dp"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_favorite_border_black_24dp"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_favorite_border_black_24dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
+</ScrollView>

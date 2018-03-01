@@ -95,5 +95,13 @@ public class SessionPrefs {
     public String getUserSession(){
         return mPrefs.getString(PREF_USER_SESSION, null);
     }
+    public String getUserHeight(){
+        return mPrefs.getString(PREF_USER_HEIGHT, null);
+    }
 
+    public void setUserHeight(String height) {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putString(PREF_USER_HEIGHT, height);
+        editor.apply();
+    }
 }

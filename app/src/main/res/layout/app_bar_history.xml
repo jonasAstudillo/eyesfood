@@ -45,6 +45,33 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/barcode" />
+        app:srcCompat="@drawable/barcode"/>
 
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/fabProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        app:fab_addButtonColorNormal="@color/colorAccent"
+        android:layout_margin="@dimen/fab_margin">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabProfileAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/colorAccentDark"
+            app:fab_icon="@mipmap/ic_note_add_white_18dp"
+            app:fab_size="mini"
+            app:fab_title="Agregar" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabProfileEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/colorAccentDark"
+            app:fab_icon="@mipmap/ic_mode_edit_white_18dp"
+            app:fab_size="mini"
+            app:fab_title="Editar" />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 </android.support.design.widget.CoordinatorLayout>

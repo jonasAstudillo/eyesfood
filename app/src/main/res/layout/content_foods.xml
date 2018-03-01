@@ -371,4 +371,28 @@ android:paddingTop="24dp">
         android:text="@string/foods_button_images"
         style="@style/RaisedButton"/>
 
+    <LinearLayout
+        style="@style/Widget.CardContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btFoodsLike"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@mipmap/ic_thumb_up_white_24dp"
+            style="@style/LikeButton"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btFoodsDisLike"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@mipmap/ic_thumb_down_white_24dp"
+            style="@style/LikeButton"/>
+
+    </LinearLayout>
+
 </LinearLayout>

@@ -12,9 +12,6 @@
         android:name="android.hardware.camera"
         android:required="true" />
 
-    <activity
-        android:name="com.google.zxing.client.android.CaptureActivity"
-        android:screenOrientation="landscape" />
 
 
     <application
@@ -25,8 +22,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
 
         <activity
             android:name=".ui.HistoryActivity"
@@ -134,6 +132,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.jonsmauricio.eyesfood.ui.FoodsActivity" />
         </activity>
+        <activity
+            android:name=".ui.AnniversaryActivity"
+            android:label="Feliz aniversario"
+            android:parentActivityName=".ui.HistoryActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.jonsmauricio.eyesfood.ui.HistoryActivity" />
+        </activity>
+
+        <activity
+            android:name="com.google.zxing.client.android.CaptureActivity"
+                android:screenOrientation="sensorLandscape" />
     </application>
 
 </manifest>

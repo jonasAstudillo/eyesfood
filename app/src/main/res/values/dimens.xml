@@ -10,8 +10,10 @@
 
     <dimen name="headerbar_elevation">4dp</dimen>
     <dimen name="card_margin">16dp</dimen>
+    <dimen name="card_margin_expert">8dp</dimen>
     <dimen name="size_fab">56dp</dimen>
     <dimen name="avatar_size">40dp</dimen>
 
     <dimen name="grid_spacing">1dp</dimen>
+    <dimen name="appbar_padding_top">8dp</dimen>
 </resources>
