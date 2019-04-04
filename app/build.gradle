@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    buildToolsVersion "26.0.3"
     defaultConfig {
         applicationId "com.example.jonsmauricio.eyesfood"
         minSdkVersion 17
@@ -35,6 +35,7 @@ dependencies {
     }
     compile project(':scanner')
     //compile 'com.android.support:appcompat-v7:26.+'
+    //noinspection GradleCompatible
     compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
     compile 'com.android.support:cardview-v7:26.0.0-alpha1'
     compile 'com.android.support:customtabs:26.0.0-alpha1'
@@ -55,7 +56,11 @@ dependencies {
     compile 'com.getbase:floatingactionbutton:1.10.1'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     compile 'com.jjoe64:graphview:4.2.1'
+    // Unit testing dependencies
     testCompile 'junit:junit:4.12'
+    // Set this dependency if you want to use the Hamcrest matcher library
+    testCompile 'org.hamcrest:hamcrest-library:1.3'
+    // more stuff, e.g., Mockito
 }
 
 apply plugin: 'com.google.gms.google-services'
