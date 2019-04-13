@@ -164,7 +164,6 @@
     <string name="hint_comments">Escribe un comentario...</string>
     <string name="comments_empty_state">El alimento no tiene comentarios ¡Se el primero!</string>
     <string name="login_gmail_failed">No se pudo iniciar sesión</string>
-    <string name="title_activity_anniversary">AnniversaryActivity</string>
     <string name="nav_history">Historial</string>
     <string name="nav_uploads">Subidos</string>
     <string name="nav_favorites">Destacados</string>
