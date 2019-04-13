@@ -20,7 +20,7 @@ public class AdapterTabsEdit extends ArrayAdapter<Measure>{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Obtener inflater.
+        // Obtener inflater.sdcds
         LayoutInflater inflater = (LayoutInflater) getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
