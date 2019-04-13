@@ -497,14 +497,7 @@ public class HistoryActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 barCode = intent.getStringExtra("SCAN_RESULT");
                 Log.d("myTag","Barcode = "+barCode);
-                if(barCode.equals("016861788322")){
-                    Toast.makeText(this, "HOLA", Toast.LENGTH_LONG).show();
-                    Intent i = new Intent(this, AnniversaryActivity.class);
-                    startActivity(i);
-                }
-                else {
-                    loadFoods(barCode);
-                }
+                loadFoods(barCode);
             }
             //Si no obtiene el código
             else if (resultCode == RESULT_CANCELED) {
